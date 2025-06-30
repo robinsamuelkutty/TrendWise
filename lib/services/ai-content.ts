@@ -8,22 +8,57 @@ export interface ArticleData {
   metaDescription: string;
 }
 
+import OpenAI from 'openai';
+
 export async function generateArticleContent(topic: string): Promise<ArticleData> {
   // Check if OpenAI API key is available
   const hasOpenAI = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '';
   
   if (hasOpenAI) {
     try {
-      // In a real implementation, this would use OpenAI API
+      const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
       console.log('Using OpenAI to generate content for:', topic);
-      // For now, we'll still use mock data but with better structure
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert content writer. Create comprehensive, well-structured articles with proper HTML formatting. Include headings, paragraphs, lists, and engaging content."
+          },
+          {
+            role: "user",
+            content: `Write a comprehensive article about "${topic}". The article should be at least 1000 words, include an engaging title, a compelling excerpt, and well-structured HTML content with proper headings, paragraphs, and lists. Focus on current trends, practical insights, and future predictions.`
+          }
+        ],
+        max_tokens: 2000,
+        temperature: 0.7,
+      });
+
+      const generatedContent = completion.choices[0]?.message?.content || '';
+      
+      // Extract title and content from the generated response
+      const lines = generatedContent.split('\n').filter(line => line.trim());
+      const title = lines[0]?.replace(/^#\s*/, '') || `Understanding ${topic}: A Comprehensive Guide`;
+      
+      const content = `<h1>${title}</h1>\n` + generatedContent.replace(/^.*\n/, '');
+      
+      return {
+        title,
+        excerpt: `Comprehensive insights into ${topic}. Discover the latest trends, practical applications, and expert analysis in this detailed guide.`,
+        content,
+        featuredImage: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=1200',
+        tags: extractTags(topic),
+        metaDescription: `Learn about ${topic} with expert insights and analysis. Discover trends, applications, and future outlook.`,
+      };
     } catch (error) {
       console.error('OpenAI API error:', error);
+      // Fall through to default content generation
     }
   }
-  
-  // Simulate API delay for AI processing
-  await new Promise(resolve => setTimeout(resolve, 1500));
   
   // Enhanced mock content with more realistic structure
   const mockContent = {
