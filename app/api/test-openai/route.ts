@@ -15,7 +15,7 @@ export async function GET() {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Test a simple generation
     const result = await model.generateContent("Say hello world");
@@ -27,7 +27,7 @@ export async function GET() {
       hasKey: true,
       keyPreview: `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 4)}`,
       testResponse: text || 'No response',
-      model: 'gemini-pro'
+      model: 'gemini-1.5-flash'
     });
 
   } catch (error) {
