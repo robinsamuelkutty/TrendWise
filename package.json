@@ -10,6 +10,7 @@
     "workflow": "node scripts/ai-workflow.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.9.0",
     "@next/swc-wasm-nodejs": "13.5.2",
     "@radix-ui/react-accordion": "^1.2.0",

@@ -1,3 +1,4 @@
+
 // AI Content Generation Service
 export interface ArticleData {
   title: string;
@@ -8,37 +9,33 @@ export interface ArticleData {
   metaDescription: string;
 }
 
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function generateArticleContent(topic: string): Promise<ArticleData> {
-  // Check if OpenAI API key is available
-  const hasOpenAI = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '';
+  // Check if Gemini API key is available
+  const hasGemini = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '';
   
-  if (hasOpenAI) {
+  if (hasGemini) {
     try {
-      const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-      });
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-      console.log('Using OpenAI to generate content for:', topic);
+      console.log('Using Gemini to generate content for:', topic);
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert content writer. Create comprehensive, well-structured articles with proper HTML formatting. Include headings, paragraphs, lists, and engaging content."
-          },
-          {
-            role: "user",
-            content: `Write a comprehensive article about "${topic}". The article should be at least 1000 words, include an engaging title, a compelling excerpt, and well-structured HTML content with proper headings, paragraphs, and lists. Focus on current trends, practical insights, and future predictions.`
-          }
-        ],
-        max_tokens: 2000,
-        temperature: 0.7,
-      });
+      const prompt = `You are an expert content writer. Create a comprehensive, well-structured article with proper HTML formatting about "${topic}". 
 
-      const generatedContent = completion.choices[0]?.message?.content || '';
+      The article should be at least 1000 words and include:
+      - An engaging title
+      - A compelling excerpt (2-3 sentences)
+      - Well-structured HTML content with proper headings (h1, h2, h3), paragraphs, and lists
+      - Focus on current trends, practical insights, and future predictions
+      - Meta description for SEO
+      
+      Format your response as a structured article with clear sections.`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const generatedContent = response.text();
       
       // Extract title and content from the generated response
       const lines = generatedContent.split('\n').filter(line => line.trim());
@@ -55,7 +52,7 @@ export async function generateArticleContent(topic: string): Promise<ArticleData
         metaDescription: `Learn about ${topic} with expert insights and analysis. Discover trends, applications, and future outlook.`,
       };
     } catch (error) {
-      console.error('OpenAI API error:', error);
+      console.error('Gemini API error:', error);
       // Fall through to default content generation
     }
   }

@@ -16,8 +16,8 @@ export function FeaturedArticles() {
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>(null);
   const [generating, setGenerating] = useState(false);
-  const [testingOpenAI, setTestingOpenAI] = useState(false);
-  const [openAIStatus, setOpenAIStatus] = useState<any>(null);
+  const [testingGemini, setTestingGemini] = useState(false);
+  const [geminiStatus, setGeminiStatus] = useState<any>(null);
 
   const fetchArticles = async () => {
     setLoading(true);
@@ -42,18 +42,18 @@ export function FeaturedArticles() {
     }
   };
 
-  const testOpenAI = async () => {
-    setTestingOpenAI(true);
+  const testGemini = async () => {
+    setTestingGemini(true);
     try {
       const response = await fetch('/api/test-openai');
       const result = await response.json();
-      setOpenAIStatus(result);
-      console.log('OpenAI test result:', result);
+      setGeminiStatus(result);
+      console.log('Gemini test result:', result);
     } catch (error) {
-      console.error('Error testing OpenAI:', error);
-      setOpenAIStatus({ error: 'Failed to test OpenAI connection' });
+      console.error('Error testing Gemini:', error);
+      setGeminiStatus({ error: 'Failed to test Gemini connection' });
     } finally {
-      setTestingOpenAI(false);
+      setTestingGemini(false);
     }
   };
 
@@ -203,22 +203,22 @@ export function FeaturedArticles() {
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
             </Button>
-            <Button onClick={testOpenAI} variant="outline" disabled={testingOpenAI}>
-              {testingOpenAI ? (
+            <Button onClick={testGemini} variant="outline" disabled={testingGemini}>
+              {testingGemini ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   Testing...
                 </>
               ) : (
-                'Test OpenAI Connection'
+                'Test Gemini Connection'
               )}
             </Button>
           </div>
-          {openAIStatus && (
+          {geminiStatus && (
             <div className="mt-4 p-4 bg-muted rounded-lg max-w-2xl mx-auto">
-              <h4 className="font-medium mb-2">OpenAI Status:</h4>
+              <h4 className="font-medium mb-2">Gemini Status:</h4>
               <pre className="text-xs overflow-auto text-left">
-                {JSON.stringify(openAIStatus, null, 2)}
+                {JSON.stringify(geminiStatus, null, 2)}
               </pre>
             </div>
           )}
@@ -226,7 +226,7 @@ export function FeaturedArticles() {
       ) : (
         <div className="text-center py-12 space-y-4">
           <p className="text-lg text-muted-foreground">No articles available yet.</p>
-          <p className="text-sm text-muted-foreground">Generate some sample articles using OpenAI!</p>
+          <p className="text-sm text-muted-foreground">Generate some sample articles using Gemini AI!</p>
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
             <Button 
               onClick={generateSampleArticles} 
@@ -241,22 +241,22 @@ export function FeaturedArticles() {
                 'Generate Sample Articles'
               )}
             </Button>
-            <Button onClick={testOpenAI} variant="outline" disabled={testingOpenAI}>
-              {testingOpenAI ? (
+            <Button onClick={testGemini} variant="outline" disabled={testingGemini}>
+              {testingGemini ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   Testing...
                 </>
               ) : (
-                'Test OpenAI'
+                'Test Gemini'
               )}
             </Button>
           </div>
-          {openAIStatus && (
+          {geminiStatus && (
             <div className="mt-4 p-4 bg-muted rounded-lg max-w-2xl mx-auto">
-              <h4 className="font-medium mb-2">OpenAI Connection Status:</h4>
+              <h4 className="font-medium mb-2">Gemini Connection Status:</h4>
               <pre className="text-xs overflow-auto text-left">
-                {JSON.stringify(openAIStatus, null, 2)}
+                {JSON.stringify(geminiStatus, null, 2)}
               </pre>
             </div>
           )}
