@@ -147,6 +147,7 @@ export async function createArticle(articleData: any): Promise<Article> {
     const article = new ArticleModel({
       title: articleData.title,
       slug: articleData.title?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') || '',
+      category: articleData.category || 'general',
       meta: {
         description: articleData.metaDescription,
         keywords: articleData.tags?.join(', ') || '',

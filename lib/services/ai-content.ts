@@ -174,56 +174,260 @@ function extractTags(topic: string): string[] {
   return [...topicWords, ...commonTags].slice(0, 5);
 }
 
-export function generateRandomTopic(): string {
-  const techTopics = [
-    "AI-Powered Healthcare Revolution",
+const categoryTopics = {
+  technology: [
+    "AI-Powered Development Tools",
     "Quantum Computing Breakthroughs",
-    "Sustainable Smart Cities",
-    "Blockchain in Supply Chain",
-    "Virtual Reality in Education",
-    "Edge Computing Applications",
-    "5G Technology Impact",
-    "Cybersecurity in IoT",
-    "Machine Learning in Finance",
-    "Autonomous Vehicle Technology",
-    "Green Energy Storage Solutions",
-    "Digital Twins in Manufacturing",
-    "Voice AI and Natural Language Processing",
-    "Augmented Reality in Retail",
-    "Robotics in Agriculture",
-    "Cloud-Native Development",
-    "Biometric Security Systems",
-    "Metaverse Business Applications",
-    "Neural Network Innovations",
-    "Smart Home Automation"
-  ];
-
-  const businessTopics = [
-    "Remote Work Culture Evolution",
-    "E-commerce Personalization",
-    "Digital Marketing Automation",
-    "Startup Funding Trends",
-    "Sustainable Business Models",
-    "Customer Experience Innovation",
-    "Data-Driven Decision Making",
-    "Agile Project Management",
-    "Digital Transformation Strategies",
-    "Workplace Wellness Programs"
-  ];
-
-  const futureTopics = [
-    "Space Technology Commercialization",
-    "Biotechnology Advances",
-    "Climate Change Solutions",
-    "Next-Generation Batteries",
+    "Edge Computing Revolution",
+    "5G Technology Implementation",
+    "Cybersecurity Mesh Architecture",
+    "Cloud-Native Applications",
+    "Serverless Computing Trends",
+    "IoT Device Management",
+    "Blockchain Integration",
+    "DevOps Automation"
+  ],
+  business: [
+    "Remote Work Strategies",
+    "Digital Transformation",
+    "E-commerce Growth",
+    "Customer Experience",
+    "Supply Chain Optimization",
+    "Data-Driven Decisions",
+    "Agile Methodologies",
+    "Market Analysis",
+    "Revenue Optimization",
+    "Brand Building"
+  ],
+  ai: [
+    "Machine Learning Models",
+    "Natural Language Processing",
+    "Computer Vision Applications",
+    "Neural Network Architecture",
+    "AI Ethics and Governance",
+    "Generative AI Tools",
+    "AI in Healthcare",
+    "Autonomous Systems",
+    "AI-Powered Analytics",
+    "Deep Learning Frameworks"
+  ],
+  startup: [
+    "Venture Capital Trends",
+    "MVP Development",
+    "Startup Scaling",
+    "Product-Market Fit",
+    "Fundraising Strategies",
+    "Team Building",
+    "Growth Hacking",
+    "Innovation Management",
+    "Entrepreneurship",
+    "Startup Ecosystems"
+  ],
+  sustainability: [
+    "Green Technology",
+    "Renewable Energy",
+    "Carbon Footprint Reduction",
+    "Sustainable Manufacturing",
+    "Circular Economy",
+    "Environmental Monitoring",
+    "Clean Transportation",
+    "Waste Management",
+    "Eco-Friendly Materials",
+    "Climate Solutions"
+  ],
+  health: [
+    "Digital Health",
+    "Telemedicine",
+    "Wearable Technology",
+    "Mental Health Apps",
     "Precision Medicine",
-    "Brain-Computer Interfaces",
-    "3D Printing Revolution",
-    "Renewable Energy Grid",
-    "Smart Materials Development",
-    "Genetic Engineering Ethics"
-  ];
+    "Health Data Analytics",
+    "Medical Devices",
+    "Wellness Programs",
+    "Healthcare AI",
+    "Personalized Treatment"
+  ],
+  education: [
+    "Online Learning",
+    "EdTech Platforms",
+    "Virtual Classrooms",
+    "Learning Analytics",
+    "Educational Apps",
+    "Skill Development",
+    "MOOCs Evolution",
+    "AI in Education",
+    "Interactive Learning",
+    "Knowledge Management"
+  ],
+  gaming: [
+    "Game Development",
+    "Esports Industry",
+    "VR Gaming",
+    "Mobile Gaming",
+    "Game Monetization",
+    "Player Analytics",
+    "Gaming Communities",
+    "Interactive Entertainment",
+    "Game Design Trends",
+    "Gaming Technology"
+  ]
+};
 
-  const allTopics = [...techTopics, ...businessTopics, ...futureTopics];
+export function generateRandomTopic(): string {
+  const allTopics = Object.values(categoryTopics).flat();
   return allTopics[Math.floor(Math.random() * allTopics.length)];
+}
+
+export function generateCategoryTopic(category: string): string {
+  const topics = categoryTopics[category as keyof typeof categoryTopics];
+  if (!topics) {
+    return generateRandomTopic();
+  }
+  return topics[Math.floor(Math.random() * topics.length)];
+}
+
+export async function generateCategoryArticle(category: string): Promise<ArticleData> {
+  const topic = generateCategoryTopic(category);
+  const categoryName = getCategoryDisplayName(category);
+  
+  // Check if Gemini API key is available
+  const hasGemini = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '';
+
+  // Fetch category and topic-specific image
+  const featuredImage = await fetchTopicImage(`${categoryName} ${topic}`);
+
+  if (hasGemini) {
+    try {
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+      console.log(`Using Gemini to generate ${categoryName} content for:`, topic);
+
+      const prompt = `You are an expert writer specializing in ${categoryName}. Create a comprehensive, well-structured article about "${topic}" specifically for the ${categoryName} category.
+
+      The article should be at least 1200 words and include:
+      - An engaging, SEO-friendly title that clearly relates to ${categoryName} and "${topic}"
+      - A compelling excerpt (2-3 sentences) explaining the ${categoryName} relevance
+      - Well-structured HTML content with proper headings (h1, h2, h3), paragraphs, and lists
+      - Focus on current ${categoryName} trends and practical applications of "${topic}"
+      - Include specific examples, case studies, or data points relevant to ${categoryName}
+      - Address common questions about "${topic}" in the ${categoryName} context
+      - Provide actionable insights for ${categoryName} professionals
+      - Conclude with future outlook and recommendations
+
+      Write in a professional yet accessible tone. Make the content valuable for someone interested in both ${categoryName} and "${topic}".
+      
+      Format your response as a structured article with clear sections.`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const generatedContent = response.text();
+
+      // Parse the response and extract article data
+      const lines = generatedContent.split('\n').filter(line => line.trim());
+
+      // Extract title (first non-empty line), clean up any HTML markup
+      let title = lines[0] || `${topic} in ${categoryName}`;
+
+      // Clean up HTML markup, markdown code blocks, and other unwanted formatting
+      title = title
+        .replace(/```html|```|<!DOCTYPE html>/gi, '')
+        .replace(/<[^>]*>/g, '')
+        .replace(/^[#\-\*\s]+/, '')
+        .trim();
+
+      if (!title) {
+        title = `${topic} in ${categoryName}`;
+      }
+
+      // Extract content (remaining lines joined), also clean up
+      let content = lines.slice(1).join('\n\n');
+      content = content
+        .replace(/^```html|^```|^<!DOCTYPE html>/gi, '')
+        .trim();
+
+      return {
+        title,
+        excerpt: `Explore the latest developments in ${topic} within the ${categoryName} industry. Discover trends, applications, and expert insights.`,
+        content,
+        featuredImage,
+        tags: extractCategoryTags(category, topic),
+        metaDescription: `Learn about ${topic} in ${categoryName}. Expert analysis of trends, applications, and future outlook.`,
+      };
+    } catch (error) {
+      console.error('Gemini API error:', error);
+      // Fall through to default content generation
+    }
+  }
+
+  // Enhanced mock content for category-specific articles
+  const categoryName = getCategoryDisplayName(category);
+  const mockContent = {
+    title: `${topic}: ${categoryName} Trends and Insights for 2025`,
+    excerpt: `Discover how ${topic} is transforming the ${categoryName} landscape with cutting-edge innovations and practical applications.`,
+    content: `
+      <h1>${topic}: ${categoryName} Trends and Insights for 2025</h1>
+
+      <p>The ${categoryName} industry is experiencing unprecedented transformation, with ${topic} leading the charge. This comprehensive analysis explores how ${topic} is reshaping ${categoryName} practices and creating new opportunities.</p>
+
+      <h2>Understanding ${topic} in ${categoryName}</h2>
+      <p>${topic} represents a pivotal advancement in ${categoryName}, offering innovative solutions to traditional challenges. Industry leaders are leveraging these technologies to gain competitive advantages and drive growth.</p>
+
+      <h2>Current Applications and Use Cases</h2>
+      <p>Organizations across the ${categoryName} sector are implementing ${topic} in various ways:</p>
+      <ul>
+        <li>Streamlining operational processes and workflows</li>
+        <li>Enhancing customer experience and satisfaction</li>
+        <li>Improving decision-making through data-driven insights</li>
+        <li>Reducing costs while increasing efficiency</li>
+        <li>Creating new revenue streams and business models</li>
+      </ul>
+
+      <h2>Industry Impact and Benefits</h2>
+      <p>The integration of ${topic} in ${categoryName} has delivered measurable benefits including improved productivity, enhanced innovation capabilities, and better resource utilization.</p>
+
+      <h2>Challenges and Considerations</h2>
+      <p>While ${topic} offers significant opportunities, ${categoryName} professionals must navigate implementation challenges, regulatory requirements, and skill development needs.</p>
+
+      <h2>Future Outlook and Predictions</h2>
+      <p>Experts predict that ${topic} will continue evolving, with emerging trends pointing toward increased automation, better integration, and more sophisticated applications in ${categoryName}.</p>
+
+      <h2>Best Practices and Recommendations</h2>
+      <p>To successfully leverage ${topic} in ${categoryName}, organizations should focus on strategic planning, employee training, and gradual implementation approaches.</p>
+
+      <h2>Conclusion</h2>
+      <p>As ${categoryName} continues to evolve, ${topic} will play an increasingly important role in shaping the industry's future. Organizations that embrace these technologies today will be best positioned for tomorrow's opportunities.</p>
+    `,
+    featuredImage,
+    tags: extractCategoryTags(category, topic),
+    metaDescription: `Comprehensive guide to ${topic} in ${categoryName}. Discover trends, applications, and future outlook in this expert analysis.`,
+  };
+
+  return mockContent;
+}
+
+function getCategoryDisplayName(category: string): string {
+  const categoryNames: { [key: string]: string } = {
+    technology: 'Technology',
+    business: 'Business',
+    ai: 'Artificial Intelligence',
+    startup: 'Startup',
+    sustainability: 'Sustainability',
+    health: 'Health & Wellness',
+    education: 'Education',
+    gaming: 'Gaming'
+  };
+  
+  return categoryNames[category] || category;
+}
+
+function extractCategoryTags(category: string, topic: string): string[] {
+  const categoryName = getCategoryDisplayName(category);
+  const topicWords = topic.split(' ').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  );
+  
+  const commonTags = ['2025', 'Trends', 'Innovation', 'Analysis'];
+  
+  return [categoryName, ...topicWords, ...commonTags].slice(0, 6);
 }

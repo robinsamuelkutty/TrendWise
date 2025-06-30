@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/trendwise';
@@ -26,6 +25,7 @@ Object.keys(mongoose.models).forEach(key => {
 const articleSchema = new mongoose.Schema({
   title: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
+  category: { type: String, default: 'general' },
   meta: {
     description: { type: String },
     keywords: { type: String },
