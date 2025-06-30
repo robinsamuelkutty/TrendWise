@@ -57,36 +57,30 @@ export function FeaturedArticles() {
     }
   };
 
-  const generateSampleArticles = async () => {
+  const generateRandomArticles = async (count = 3) => {
     setGenerating(true);
     try {
-      const topics = [
-        'The Future of Artificial Intelligence in 2025',
-        'Sustainable Technology Innovations',
-        'Remote Work Revolution and Digital Transformation'
-      ];
-
-      for (const topic of topics) {
-        const response = await fetch('/api/articles/generate', {
+      for (let i = 0; i < count; i++) {
+        const response = await fetch('/api/articles/random', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ topic }),
         });
 
         const result = await response.json();
-        console.log('Generated article:', result);
+        console.log('Generated random article:', result);
       }
 
       // Refresh articles after generation
       await fetchArticles();
     } catch (error) {
-      console.error('Error generating sample articles:', error);
-      setError('Failed to generate sample articles');
+      console.error('Error generating random articles:', error);
+      setError('Failed to generate random articles');
     } finally {
       setGenerating(false);
     }
+  };
+
+  const generateSampleArticles = async () => {
+    await generateRandomArticles(3);
   };
 
   useEffect(() => {
@@ -235,10 +229,24 @@ export function FeaturedArticles() {
               {generating ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Generating Random Articles...
+                </>
+              ) : (
+                'Generate Random Articles'
+              )}
+            </Button>
+            <Button 
+              onClick={() => generateRandomArticles(1)} 
+              disabled={generating}
+              variant="outline"
+            >
+              {generating ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                   Generating...
                 </>
               ) : (
-                'Generate Sample Articles'
+                'Generate Single Article'
               )}
             </Button>
             <Button onClick={testGemini} variant="outline" disabled={testingGemini}>

@@ -127,3 +127,57 @@ function extractTags(topic: string): string[] {
 
   return [...topicWords, ...commonTags].slice(0, 5);
 }
+
+export function generateRandomTopic(): string {
+  const techTopics = [
+    "AI-Powered Healthcare Revolution",
+    "Quantum Computing Breakthroughs",
+    "Sustainable Smart Cities",
+    "Blockchain in Supply Chain",
+    "Virtual Reality in Education",
+    "Edge Computing Applications",
+    "5G Technology Impact",
+    "Cybersecurity in IoT",
+    "Machine Learning in Finance",
+    "Autonomous Vehicle Technology",
+    "Green Energy Storage Solutions",
+    "Digital Twins in Manufacturing",
+    "Voice AI and Natural Language Processing",
+    "Augmented Reality in Retail",
+    "Robotics in Agriculture",
+    "Cloud-Native Development",
+    "Biometric Security Systems",
+    "Metaverse Business Applications",
+    "Neural Network Innovations",
+    "Smart Home Automation"
+  ];
+
+  const businessTopics = [
+    "Remote Work Culture Evolution",
+    "E-commerce Personalization",
+    "Digital Marketing Automation",
+    "Startup Funding Trends",
+    "Sustainable Business Models",
+    "Customer Experience Innovation",
+    "Data-Driven Decision Making",
+    "Agile Project Management",
+    "Digital Transformation Strategies",
+    "Workplace Wellness Programs"
+  ];
+
+  const futureTopics = [
+    "Space Technology Commercialization",
+    "Biotechnology Advances",
+    "Climate Change Solutions",
+    "Next-Generation Batteries",
+    "Precision Medicine",
+    "Brain-Computer Interfaces",
+    "3D Printing Revolution",
+    "Renewable Energy Grid",
+    "Smart Materials Development",
+    "Genetic Engineering Ethics"
+  ];
+
+  const allTopics = [...techTopics, ...businessTopics, ...futureTopics];
+  return allTopics[Math.floor(Math.random() * allTopics.length)];
+}

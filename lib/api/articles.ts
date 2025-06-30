@@ -59,7 +59,10 @@ export async function getArticles(params: {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
         { excerpt: { $regex: search, $options: 'i' } },
-        { tags: { $in: [new RegExp(search, 'i')] } }
+        { content: { $regex: search, $options: 'i' } },
+        { tags: { $in: [new RegExp(search, 'i')] } },
+        { 'meta.description': { $regex: search, $options: 'i' } },
+        { 'meta.keywords': { $regex: search, $options: 'i' } }
       ];
     }
 
