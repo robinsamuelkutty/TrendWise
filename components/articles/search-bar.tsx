@@ -17,25 +17,19 @@ export function SearchBar({ initialSearch = '' }: SearchBarProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams(searchParams);
     
     if (search.trim()) {
-      params.set('search', search.trim());
+      // Redirect to dedicated search page
+      router.push(`/search?q=${encodeURIComponent(search.trim())}`);
     } else {
-      params.delete('search');
+      // If empty search, go to articles page
+      router.push('/articles');
     }
-    
-    params.delete('page'); // Reset to first page when searching
-    
-    router.push(`/articles?${params.toString()}`);
   };
 
   const clearSearch = () => {
     setSearch('');
-    const params = new URLSearchParams(searchParams);
-    params.delete('search');
-    params.delete('page');
-    router.push(`/articles?${params.toString()}`);
+    router.push('/articles');
   };
 
   return (

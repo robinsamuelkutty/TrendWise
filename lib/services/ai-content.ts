@@ -24,12 +24,17 @@ export async function generateArticleContent(topic: string): Promise<ArticleData
       const prompt = `You are an expert content writer. Create a comprehensive, well-structured article with proper HTML formatting about "${topic}". 
 
       The article should be at least 1000 words and include:
-      - An engaging title
-      - A compelling excerpt (2-3 sentences)
+      - An engaging, SEO-friendly title that directly addresses the search intent for "${topic}"
+      - A compelling excerpt (2-3 sentences) that clearly explains what readers will learn
       - Well-structured HTML content with proper headings (h1, h2, h3), paragraphs, and lists
-      - Focus on current trends, practical insights, and future predictions
-      - Meta description for SEO
+      - Focus on current trends, practical insights, and actionable advice
+      - Include specific examples, case studies, or data points when relevant
+      - Address common questions people might have about "${topic}"
+      - Conclude with actionable takeaways or next steps
+      - Meta description for SEO that includes the main keyword
 
+      Write in a conversational yet authoritative tone. Make the content valuable for someone searching specifically for "${topic}".
+      
       Format your response as a structured article with clear sections.`;
 
       const result = await model.generateContent(prompt);

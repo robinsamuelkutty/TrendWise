@@ -30,7 +30,7 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const pathname = usePathname();
   const { data: session, status } = useSession();
-  
+
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Articles', href: '/articles' },
@@ -63,19 +63,18 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === item.href
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+            <Link href="/articles" className="text-sm font-medium transition-colors hover:text-primary">
+              Articles
+            </Link>
+            <Link href="/search" className="text-sm font-medium transition-colors hover:text-primary">
+              Search
+            </Link>
+            <Link href="/categories" className="text-sm font-medium transition-colors hover:text-primary">
+              Categories
+            </Link>
+            <Link href="/trending" className="text-sm font-medium transition-colors hover:text-primary">
+              Trending
+            </Link>
           </nav>
 
           {/* Search Bar */}
@@ -172,7 +171,7 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
-              
+
               {/* Mobile Search */}
               <div className="px-3 py-2">
                 <form onSubmit={handleSearch} className="relative">
