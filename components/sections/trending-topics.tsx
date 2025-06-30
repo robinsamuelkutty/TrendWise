@@ -6,74 +6,39 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, BarChart3, Zap, RefreshCw } from 'lucide-react';
 
-// Mock trending topics data
-const mockTrendingTopics = [
-  {
-    id: '1',
-    topic: 'AI-Powered Code Generation',
-    category: 'Technology',
-    trendScore: 95,
-    change: '+15%',
-    articles: 12,
-    color: 'bg-blue-500',
-  },
-  {
-    id: '2',
-    topic: 'Quantum Computing Breakthroughs',
-    category: 'Science',
-    trendScore: 88,
-    change: '+22%',
-    articles: 8,
-    color: 'bg-purple-500',
-  },
-  {
-    id: '3',
-    topic: 'Sustainable Energy Solutions',
-    category: 'Environment',
-    trendScore: 82,
-    change: '+8%',
-    articles: 15,
-    color: 'bg-green-500',
-  },
-  {
-    id: '4',
-    topic: 'Web3 and Decentralization',
-    category: 'Blockchain',
-    trendScore: 76,
-    change: '+5%',
-    articles: 9,
-    color: 'bg-orange-500',
-  },
-  {
-    id: '5',
-    topic: 'Mental Health Tech',
-    category: 'Healthcare',
-    trendScore: 71,
-    change: '+18%',
-    articles: 6,
-    color: 'bg-pink-500',
-  },
-  {
-    id: '6',
-    topic: 'AR/VR in Education',
-    category: 'Education',
-    trendScore: 68,
-    change: '+12%',
-    articles: 11,
-    color: 'bg-indigo-500',
-  },
-];
-
 export function TrendingTopics() {
-  const [topics, setTopics] = useState(mockTrendingTopics);
+  const [topics, setTopics] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrendingTopics = async () => {
+      try {
+        const response = await fetch('/api/trending');
+        const data = await response.json();
+        setTopics(data.topics || []);
+      } catch (error) {
+        console.error('Error fetching trending topics:', error);
+        setTopics([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrendingTopics();
+  }, []);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/trending');
+      const data = await response.json();
+      setTopics(data.topics || []);
+    } catch (error) {
+      console.error('Error refreshing trending topics:', error);
+    } finally {
       setIsRefreshing(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -86,7 +51,7 @@ export function TrendingTopics() {
               Real-time insights into what's capturing global attention
             </p>
           </div>
-          
+
           <Button 
             onClick={handleRefresh} 
             disabled={isRefreshing}
@@ -98,56 +63,77 @@ export function TrendingTopics() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {topics.map((topic, index) => (
-            <Card key={topic.id} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <Badge variant="secondary">{topic.category}</Badge>
-                    <CardTitle className="text-lg leading-tight">{topic.topic}</CardTitle>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                    <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
                   </div>
-                  <div className="text-right space-y-1">
-                    <div className="flex items-center space-x-1 text-green-600">
-                      <TrendingUp className="h-4 w-4" />
-                      <span className="text-sm font-medium">{topic.change}</span>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : topics.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {topics.map((topic, index) => (
+              <Card key={topic.id} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <Badge variant="secondary">{topic.category}</Badge>
+                      <CardTitle className="text-lg leading-tight">{topic.topic}</CardTitle>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <div className="flex items-center space-x-1 text-green-600">
+                        <TrendingUp className="h-4 w-4" />
+                        <span className="text-sm font-medium">{topic.change}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardHeader>
+                </CardHeader>
 
-              <CardContent className="space-y-4">
-                {/* Trend Score Bar */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Trend Score</span>
-                    <span className="font-medium">{topic.trendScore}/100</span>
+                <CardContent className="space-y-4">
+                  {/* Trend Score Bar */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-muted-foreground">Trend Score</span>
+                      <span className="font-medium">{topic.trendScore}/100</span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div 
+                        className={`${topic.color} h-2 rounded-full transition-all duration-500`}
+                        style={{ width: `${topic.trendScore}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div 
-                      className={`${topic.color} h-2 rounded-full transition-all duration-500`}
-                      style={{ width: `${topic.trendScore}%` }}
-                    />
-                  </div>
-                </div>
 
-                {/* Stats */}
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center space-x-1">
-                    <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">
-                      {topic.articles} articles
-                    </span>
+                  {/* Stats */}
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center space-x-1">
+                      <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">
+                        {topic.articles} articles
+                      </span>
+                    </div>
+                    <Button size="sm" variant="ghost" className="text-xs h-8 px-3">
+                      <Zap className="mr-1 h-3 w-3" />
+                      Generate Article
+                    </Button>
                   </div>
-                  <Button size="sm" variant="ghost" className="text-xs h-8 px-3">
-                    <Zap className="mr-1 h-3 w-3" />
-                    Generate Article
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-lg text-muted-foreground">No trending topics available yet.</p>
+            <p className="text-sm text-muted-foreground mt-2">Check back later for trending content!</p>
+          </div>
+        )}
 
         {/* View All Button */}
         <div className="text-center mt-12">

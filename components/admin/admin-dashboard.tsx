@@ -1,22 +1,22 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  BarChart3, 
-  TrendingUp, 
-  FileText, 
-  Users, 
-  Zap,
-  RefreshCw,
-  Plus,
-  Settings,
-  Database
+  FileText,
+  TrendingUp,
+  Users,
+  Eye,
+  Calendar,
+  MoreHorizontal,
+  Play,
+  Pause,
+  Settings
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { formatDistanceToNow } from 'date-fns';
 import { WorkflowDashboard } from './workflow-dashboard';
 
 export function AdminDashboard() {
@@ -25,7 +25,7 @@ export function AdminDashboard() {
   const handleGenerateContent = async () => {
     setIsGenerating(true);
     toast.info('Generating content from trending topics...');
-    
+
     // Simulate content generation
     setTimeout(() => {
       setIsGenerating(false);
@@ -45,7 +45,7 @@ export function AdminDashboard() {
       title: 'Monthly Views',
       value: '45.2K',
       change: '+18%',
-      icon: BarChart3,
+      icon: TrendingUp,
       color: 'text-green-600',
     },
     {
@@ -117,7 +117,7 @@ export function AdminDashboard() {
                 </>
               )}
             </Button>
-            
+
             <Button variant="outline">
               <Plus className="h-4 w-4 mr-2" />
               Create Manual Article
@@ -164,7 +164,7 @@ export function AdminDashboard() {
                         <span>{article.views} views</span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3">
                       <Badge 
                         variant={article.status === 'published' ? 'default' : 'secondary'}
