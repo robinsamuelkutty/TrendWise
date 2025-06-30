@@ -7,18 +7,18 @@ const mockArticles = [
     excerpt: 'Explore how artificial intelligence is revolutionizing web development and what developers need to know for the future.',
     content: `
       <h1>The Future of AI in Web Development: Trends to Watch in 2025</h1>
-      
+
       <p>Artificial Intelligence is rapidly transforming the landscape of web development, creating new possibilities and reshaping how we build digital experiences. As we move through 2025, several key trends are emerging that every developer should be aware of.</p>
-      
+
       <h2>AI-Powered Code Generation</h2>
       <p>Tools like GitHub Copilot and ChatGPT are already changing how developers write code. In 2025, we're seeing even more sophisticated AI assistants that can generate entire components, debug complex issues, and suggest architectural improvements.</p>
-      
+
       <h2>Intelligent User Interfaces</h2>
       <p>AI is enabling the creation of more intuitive and responsive user interfaces. From predictive text inputs to adaptive layouts that change based on user behavior, the web is becoming smarter and more personalized.</p>
-      
+
       <h2>Automated Testing and Quality Assurance</h2>
       <p>Machine learning algorithms are now capable of writing and executing comprehensive test suites, identifying edge cases that human testers might miss, and continuously monitoring application performance.</p>
-      
+
       <h2>The Road Ahead</h2>
       <p>As AI continues to evolve, web developers must adapt and learn to work alongside these powerful tools. The future belongs to those who can effectively combine human creativity with artificial intelligence capabilities.</p>
     `,
@@ -75,43 +75,121 @@ export interface GetArticlesParams {
   tags?: string[];
 }
 
-export async function getArticles(params: GetArticlesParams = {}): Promise<ArticlesResponse> {
-  const { page = 1, limit = 10, search = '' } = params;
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 100));
-  
-  let filteredArticles = mockArticles;
-  
-  // Filter by search query
-  if (search) {
-    filteredArticles = mockArticles.filter(article => 
-      article.title.toLowerCase().includes(search.toLowerCase()) ||
-      article.excerpt.toLowerCase().includes(search.toLowerCase()) ||
-      article.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()))
-    );
+export async function getArticles(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+}): Promise<{
+  articles: Article[];
+  totalPages: number;
+  currentPage: number;
+  totalCount: number;
+}> {
+  const { page = 1, limit = 10, search = '', category } = params;
+
+  try {
+    await connectDB();
+
+    const query: any = {};
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { excerpt: { $regex: search, $options: 'i' } },
+        { tags: { $in: [new RegExp(search, 'i')] } }
+      ];
+    }
+
+    if (category) {
+      query.category = category;
+    }
+
+    const skip = (page - 1) * limit;
+    const articles = await ArticleModel.find(query)
+      .sort({ publishedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const totalCount = await ArticleModel.countDocuments(query);
+
+    // If no articles found, return mock articles
+    if (articles.length === 0 && !search && !category) {
+      const mockArticles = generateMockArticles(limit);
+      return {
+        articles: mockArticles,
+        totalPages: 1,
+        currentPage: page,
+        totalCount: mockArticles.length,
+      };
+    }
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      articles: articles.map(formatArticle),
+      totalPages,
+      currentPage: page,
+      totalCount,
+    };
+  } catch (error) {
+    console.error('Error fetching articles:', error);
+    // Return mock articles on database error
+    const mockArticles = generateMockArticles(limit);
+    return {
+      articles: mockArticles,
+      totalPages: 1,
+      currentPage: page,
+      totalCount: mockArticles.length,
+    };
   }
-  
-  const total = filteredArticles.length;
-  const totalPages = Math.ceil(total / limit);
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-  
-  const articles = filteredArticles.slice(startIndex, endIndex);
-  
-  return {
-    articles,
-    total,
-    page,
-    limit,
-    totalPages,
-  };
+}
+
+function generateMockArticles(count: number): Article[] {
+  const mockTopics = [
+    'Artificial Intelligence in Web Development',
+    'Remote Work Revolution 2025',
+    'Sustainable Technology Solutions',
+    'Blockchain Beyond Cryptocurrency',
+    'Future of Cloud Computing',
+    'Machine Learning for Beginners',
+    'Cybersecurity Trends',
+    'Green Energy Innovation'
+  ];
+
+  return Array.from({ length: Math.min(count, mockTopics.length) }, (_, index) => ({
+    id: `mock-${index + 1}`,
+    title: mockTopics[index],
+    slug: mockTopics[index].toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    excerpt: `Explore the latest developments and insights in ${mockTopics[index].toLowerCase()}. Discover key trends, practical applications, and future predictions.`,
+    content: `<h1>${mockTopics[index]}</h1><p>This is a comprehensive guide to understanding ${mockTopics[index].toLowerCase()}...</p>`,
+    featuredImage: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    tags: ['Technology', 'Innovation', 'Trends', '2025'],
+    author: {
+      id: 'ai-author',
+      name: 'TrendWise AI',
+      avatar: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=100',
+      bio: 'AI-powered content creator'
+    },
+    publishedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date().toISOString(),
+    readTime: Math.floor(Math.random() * 10) + 5,
+    views: Math.floor(Math.random() * 5000) + 100,
+    category: 'Technology',
+    status: 'published' as const,
+    seo: {
+      metaTitle: mockTopics[index],
+      metaDescription: `Learn about ${mockTopics[index].toLowerCase()} with expert insights and analysis.`,
+      keywords: ['technology', 'innovation', 'trends']
+    }
+  }));
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 100));
-  
+
   const article = mockArticles.find(article => article.slug === slug);
   return article || null;
 }
@@ -119,21 +197,21 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 export async function getRelatedArticles(articleId: string, tags: string[], limit = 3): Promise<Article[]> {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 100));
-  
+
   const relatedArticles = mockArticles
     .filter(article => 
       article.id !== articleId && 
       article.tags.some(tag => tags.includes(tag))
     )
     .slice(0, limit);
-  
+
   return relatedArticles;
 }
 
 export async function createArticle(articleData: Partial<Article>): Promise<Article> {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 200));
-  
+
   const newArticle: Article = {
     id: Date.now().toString(),
     slug: articleData.title?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') || '',
@@ -150,7 +228,7 @@ export async function createArticle(articleData: Partial<Article>): Promise<Arti
     readTime: Math.ceil((articleData.content?.length || 0) / 200), // Rough estimate
     ...articleData,
   } as Article;
-  
+
   mockArticles.unshift(newArticle);
   return newArticle;
 }

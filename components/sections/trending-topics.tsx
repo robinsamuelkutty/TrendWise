@@ -12,20 +12,20 @@ export function TrendingTopics() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTrendingTopics = async () => {
+    const fetchTrending = async () => {
       try {
         const response = await fetch('/api/trending');
         const data = await response.json();
         setTopics(data.topics || []);
       } catch (error) {
-        console.error('Error fetching trending topics:', error);
+        console.error('Error refreshing trending topics:', error);
         setTopics([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTrendingTopics();
+    fetchTrending();
   }, []);
 
   const handleRefresh = async () => {
