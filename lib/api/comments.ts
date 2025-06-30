@@ -1,69 +1,3 @@
-// Mock database - replace with actual database calls
-const mockComments = [
-  {
-    id: '1',
-    articleId: '1',
-    userId: '1',
-    content: 'Great article! I especially found the section on AI-powered code generation fascinating.',
-    author: {
-      name: 'John Doe',
-      avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=100',
-    },
-    createdAt: '2025-01-10T12:30:00Z',
-    updatedAt: '2025-01-10T12:30:00Z',
-    likes: 5,
-    replies: [],
-  },
-];
-
-export interface Comment {
-  id: string;
-  articleId: string;
-  userId: string;
-  content: string;
-  author: {
-    name: string;
-    avatar: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-  likes: number;
-  replies: Comment[];
-}
-
-export interface CreateCommentData {
-  articleId: string;
-  userId: string;
-  content: string;
-}
-
-export async function getCommentsByArticle(articleId: string): Promise<Comment[]> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 100));
-  
-  return mockComments.filter(comment => comment.articleId === articleId);
-}
-
-export async function createComment(data: CreateCommentData): Promise<Comment> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 200));
-  
-  const newComment: Comment = {
-    id: Date.now().toString(),
-    ...data,
-    author: {
-      name: 'Anonymous User', // This would come from user session
-      avatar: '/default-avatar.png',
-    },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    likes: 0,
-    replies: [],
-  };
-  
-  mockComments.push(newComment);
-  return newComment;
-}
 import { connectDB } from '@/lib/database/mongodb';
 import mongoose from 'mongoose';
 
@@ -121,7 +55,7 @@ export function formatComment(comment: any): Comment {
 export async function getCommentsByArticleId(articleId: string): Promise<Comment[]> {
   try {
     await connectDB();
-    
+
     // Get all comments for the article
     const comments = await CommentModel.find({ 
       articleId: new mongoose.Types.ObjectId(articleId) 
@@ -137,7 +71,7 @@ export async function getCommentsByArticleId(articleId: string): Promise<Comment
     comments.forEach(comment => {
       const formattedComment = formatComment(comment);
       commentMap.set(formattedComment.id, formattedComment);
-      
+
       if (!formattedComment.parentId) {
         topLevelComments.push(formattedComment);
       }
@@ -146,7 +80,7 @@ export async function getCommentsByArticleId(articleId: string): Promise<Comment
     // Second pass: organize replies
     comments.forEach(comment => {
       const formattedComment = formatComment(comment);
-      
+
       if (formattedComment.parentId) {
         const parentComment = commentMap.get(formattedComment.parentId);
         if (parentComment) {
@@ -170,7 +104,7 @@ export async function createComment(commentData: {
 }): Promise<Comment> {
   try {
     await connectDB();
-    
+
     const comment = new CommentModel({
       articleId: new mongoose.Types.ObjectId(commentData.articleId),
       author: commentData.author,
@@ -191,7 +125,7 @@ export async function createComment(commentData: {
 export async function likeComment(commentId: string): Promise<Comment | null> {
   try {
     await connectDB();
-    
+
     const comment = await CommentModel.findByIdAndUpdate(
       commentId,
       { $inc: { likes: 1 } },
