@@ -361,7 +361,6 @@ export async function generateCategoryArticle(category: string): Promise<Article
   }
 
   // Enhanced mock content for category-specific articles
-  const categoryName = getCategoryDisplayName(category);
   const mockContent = {
     title: `${topic}: ${categoryName} Trends and Insights for 2025`,
     excerpt: `Discover how ${topic} is transforming the ${categoryName} landscape with cutting-edge innovations and practical applications.`,
