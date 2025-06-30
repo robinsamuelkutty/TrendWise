@@ -68,7 +68,12 @@ const articleSchema = new mongoose.Schema({
   }
 });
 
-export const ArticleModel = mongoose.models.Article || mongoose.model('Article', articleSchema);
+// Clear any cached model to ensure schema changes take effect
+if (mongoose.models.Article) {
+  delete mongoose.models.Article;
+}
+
+export const ArticleModel = mongoose.model('Article', articleSchema);
 
 export function formatArticle(doc: any) {
   return {
