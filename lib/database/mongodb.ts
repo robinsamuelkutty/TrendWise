@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/trendwise';
@@ -17,61 +18,61 @@ export async function connectDB() {
   }
 }
 
+// Completely clear any cached models and connections
+Object.keys(mongoose.models).forEach(key => {
+  delete mongoose.models[key];
+});
+
 const articleSchema = new mongoose.Schema({
   title: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
   meta: {
-    description: String,
-    keywords: String,
-    author: String,
-    robots: String,
+    description: { type: String },
+    keywords: { type: String },
+    author: { type: String },
+    robots: { type: String },
     openGraph: {
-      title: String,
-      description: String,
-      image: String,
-      type: String,
-      url: String
+      title: { type: String },
+      description: { type: String },
+      image: { type: String },
+      type: { type: String },
+      url: { type: String }
     }
   },
   media: {
-    featuredImage: String,
+    featuredImage: { type: String },
     inlineImages: [{
-      url: String,
-      alt: String,
-      caption: String,
-      position: Number
+      url: { type: String },
+      alt: { type: String },
+      caption: { type: String },
+      position: { type: Number }
     }],
     embeddedTweets: [{
-      id: String,
-      position: Number
+      id: { type: String },
+      position: { type: Number }
     }],
     embeddedVideos: [{
-      url: String,
-      title: String,
-      position: Number
+      url: { type: String },
+      title: { type: String },
+      position: { type: Number }
     }]
   },
   content: { type: String, required: true },
-  excerpt: String,
-  tags: [String],
-  readTime: Number,
+  excerpt: { type: String },
+  tags: [{ type: String }],
+  readTime: { type: Number },
   status: { type: String, enum: ['draft', 'published', 'archived'], default: 'published' },
-  publishedAt: Date,
+  publishedAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   views: { type: Number, default: 0 },
   likes: { type: Number, default: 0 },
   source: {
-    topic: String,
-    generatedBy: String,
-    trendingSources: [String]
+    topic: { type: String },
+    generatedBy: { type: String },
+    trendingSources: [{ type: String }]
   }
 });
-
-// Clear any cached model to ensure schema changes take effect
-if (mongoose.models.Article) {
-  delete mongoose.models.Article;
-}
 
 export const ArticleModel = mongoose.model('Article', articleSchema);
 
