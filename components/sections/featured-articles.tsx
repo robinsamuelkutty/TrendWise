@@ -5,27 +5,91 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CalendarDays, Clock, TrendingUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CalendarDays, Clock, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Article } from '@/lib/api/articles';
 
 export function FeaturedArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [generating, setGenerating] = useState(false);
+  const [testingOpenAI, setTestingOpenAI] = useState(false);
+  const [openAIStatus, setOpenAIStatus] = useState<any>(null);
+
+  const fetchArticles = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/articles?limit=3');
+      const data = await response.json();
+      
+      console.log('API Response:', data);
+      setDebugInfo(data);
+      
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} - ${data.error || 'Unknown error'}`);
+      }
+      
+      setArticles(data.articles || []);
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch articles');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const testOpenAI = async () => {
+    setTestingOpenAI(true);
+    try {
+      const response = await fetch('/api/test-openai');
+      const result = await response.json();
+      setOpenAIStatus(result);
+      console.log('OpenAI test result:', result);
+    } catch (error) {
+      console.error('Error testing OpenAI:', error);
+      setOpenAIStatus({ error: 'Failed to test OpenAI connection' });
+    } finally {
+      setTestingOpenAI(false);
+    }
+  };
+
+  const generateSampleArticles = async () => {
+    setGenerating(true);
+    try {
+      const topics = [
+        'The Future of Artificial Intelligence in 2025',
+        'Sustainable Technology Innovations',
+        'Remote Work Revolution and Digital Transformation'
+      ];
+
+      for (const topic of topics) {
+        const response = await fetch('/api/articles/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ topic }),
+        });
+
+        const result = await response.json();
+        console.log('Generated article:', result);
+      }
+
+      // Refresh articles after generation
+      await fetchArticles();
+    } catch (error) {
+      console.error('Error generating sample articles:', error);
+      setError('Failed to generate sample articles');
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await fetch('/api/articles?limit=3');
-        const data = await response.json();
-        setArticles(data.articles || []);
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchArticles();
   }, []);
 
@@ -119,10 +183,83 @@ export function FeaturedArticles() {
             </Link>
           ))}
         </div>
+      ) : error ? (
+        <div className="text-center py-12 space-y-4">
+          <div className="flex items-center justify-center space-x-2 text-red-500">
+            <AlertCircle className="h-6 w-6" />
+            <h3 className="text-lg font-semibold">Error Loading Articles</h3>
+          </div>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">{error}</p>
+          {debugInfo && (
+            <details className="text-left bg-muted p-4 rounded-lg max-w-2xl mx-auto">
+              <summary className="cursor-pointer font-medium">Debug Information</summary>
+              <pre className="mt-2 text-xs overflow-auto">
+                {JSON.stringify(debugInfo, null, 2)}
+              </pre>
+            </details>
+          )}
+          <div className="flex flex-col sm:flex-row gap-2 justify-center">
+            <Button onClick={fetchArticles}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Try Again
+            </Button>
+            <Button onClick={testOpenAI} variant="outline" disabled={testingOpenAI}>
+              {testingOpenAI ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Testing...
+                </>
+              ) : (
+                'Test OpenAI Connection'
+              )}
+            </Button>
+          </div>
+          {openAIStatus && (
+            <div className="mt-4 p-4 bg-muted rounded-lg max-w-2xl mx-auto">
+              <h4 className="font-medium mb-2">OpenAI Status:</h4>
+              <pre className="text-xs overflow-auto text-left">
+                {JSON.stringify(openAIStatus, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-12 space-y-4">
           <p className="text-lg text-muted-foreground">No articles available yet.</p>
-          <p className="text-sm text-muted-foreground mt-2">Check back later for AI-generated content!</p>
+          <p className="text-sm text-muted-foreground">Generate some sample articles using OpenAI!</p>
+          <div className="flex flex-col sm:flex-row gap-2 justify-center">
+            <Button 
+              onClick={generateSampleArticles} 
+              disabled={generating}
+            >
+              {generating ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                'Generate Sample Articles'
+              )}
+            </Button>
+            <Button onClick={testOpenAI} variant="outline" disabled={testingOpenAI}>
+              {testingOpenAI ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Testing...
+                </>
+              ) : (
+                'Test OpenAI'
+              )}
+            </Button>
+          </div>
+          {openAIStatus && (
+            <div className="mt-4 p-4 bg-muted rounded-lg max-w-2xl mx-auto">
+              <h4 className="font-medium mb-2">OpenAI Connection Status:</h4>
+              <pre className="text-xs overflow-auto text-left">
+                {JSON.stringify(openAIStatus, null, 2)}
+              </pre>
+            </div>
+          )}
         </div>
       )}
     </section>
