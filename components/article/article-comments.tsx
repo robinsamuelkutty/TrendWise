@@ -2,13 +2,15 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Send, User } from 'lucide-react';
+import { Heart, MessageCircle, Send, User, Lock, LogIn } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Comment } from '@/lib/api/comments';
 
@@ -92,13 +94,15 @@ function CommentItem({ comment, onReply, onLike }: CommentItemProps) {
 }
 
 export function ArticleComments({ articleId }: ArticleCommentsProps) {
+  const { data: session, status } = useSession();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [newComment, setNewComment] = useState('');
-  const [authorName, setAuthorName] = useState('');
-  const [authorEmail, setAuthorEmail] = useState('');
   const [replyToId, setReplyToId] = useState<string | null>(null);
+
+  const isAuthenticated = status === 'authenticated' && session?.user;
+  const isLoading = status === 'loading';
 
   const fetchComments = async () => {
     try {
@@ -118,7 +122,7 @@ export function ArticleComments({ articleId }: ArticleCommentsProps) {
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newComment.trim() || !authorName.trim() || !authorEmail.trim()) {
+    if (!newComment.trim() || !isAuthenticated) {
       return;
     }
 
@@ -132,8 +136,9 @@ export function ArticleComments({ articleId }: ArticleCommentsProps) {
         body: JSON.stringify({
           articleId,
           author: {
-            name: authorName,
-            email: authorEmail
+            name: session.user.name || 'Anonymous',
+            email: session.user.email || '',
+            avatar: session.user.image
           },
           content: newComment,
           parentId: replyToId
@@ -192,54 +197,72 @@ export function ArticleComments({ articleId }: ArticleCommentsProps) {
       
       <CardContent className="space-y-6">
         {/* Comment Form */}
-        <form onSubmit={handleSubmitComment} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              placeholder="Your name"
-              value={authorName}
-              onChange={(e) => setAuthorName(e.target.value)}
-              required
-            />
-            <Input
-              type="email"
-              placeholder="Your email"
-              value={authorEmail}
-              onChange={(e) => setAuthorEmail(e.target.value)}
-              required
-            />
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
-          
-          <Textarea
-            placeholder={replyToId ? "Write your reply..." : "Share your thoughts..."}
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            rows={4}
-            required
-          />
-          
-          <div className="flex items-center justify-between">
-            {replyToId && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setReplyToId(null)}
-              >
-                Cancel Reply
-              </Button>
-            )}
+        ) : isAuthenticated ? (
+          <form onSubmit={handleSubmitComment} className="space-y-4">
+            <div className="flex items-center space-x-3 mb-4">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={session.user.image || undefined} alt={session.user.name || 'User'} />
+                <AvatarFallback>
+                  {session.user.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium">
+                Commenting as {session.user.name || 'Anonymous'}
+              </span>
+            </div>
             
-            <Button type="submit" disabled={submitting}>
-              {submitting ? (
-                'Posting...'
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  {replyToId ? 'Post Reply' : 'Post Comment'}
-                </>
+            <Textarea
+              placeholder={replyToId ? "Write your reply..." : "Share your thoughts..."}
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              rows={4}
+              required
+            />
+            
+            <div className="flex items-center justify-between">
+              {replyToId && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setReplyToId(null)}
+                >
+                  Cancel Reply
+                </Button>
               )}
-            </Button>
+              
+              <Button type="submit" disabled={submitting || !newComment.trim()}>
+                {submitting ? (
+                  'Posting...'
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    {replyToId ? 'Post Reply' : 'Post Comment'}
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <div className="text-center py-8 space-y-4">
+            <div className="flex items-center justify-center space-x-2 text-muted-foreground">
+              <Lock className="h-6 w-6" />
+              <span className="text-lg font-medium">Sign in to join the conversation</span>
+            </div>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              You need to be logged in to post comments and interact with other readers.
+            </p>
+            <Link href="/login">
+              <Button className="mt-4">
+                <LogIn className="h-4 w-4 mr-2" />
+                Sign In to Comment
+              </Button>
+            </Link>
           </div>
-        </form>
+        )}
 
         {/* Comments List */}
         {loading ? (

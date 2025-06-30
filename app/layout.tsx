@@ -1,11 +1,11 @@
-import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
-import { AuthSessionProvider } from '@/components/auth/session-provider';
-import { Toaster } from '@/components/ui/sonner';
+import { SessionProvider } from '@/components/auth/session-provider';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -62,7 +62,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <AuthSessionProvider>
+        <SessionProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
@@ -78,7 +78,7 @@ export default function RootLayout({
             </div>
             <Toaster />
           </ThemeProvider>
-        </AuthSessionProvider>
+        </SessionProvider>
       </body>
     </html>
   );
