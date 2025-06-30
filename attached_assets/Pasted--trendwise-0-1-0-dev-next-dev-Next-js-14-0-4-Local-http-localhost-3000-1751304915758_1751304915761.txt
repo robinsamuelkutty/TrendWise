@@ -1,0 +1,393 @@
+
+> trendwise@0.1.0 dev
+> next dev
+
+   ▲ Next.js 14.0.4
+   - Local:        http://localhost:3000
+   - Environments: .env.local
+
+ ✓ Ready in 2.4s
+ ○ Compiling / ...
+ ✓ Compiled / in 7.5s (887 modules)
+
+ ⚠ metadata.metadataBase is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ ✓ Compiled in 1281ms (436 modules)
+ ○ Compiling /api/articles ...
+ ✓ Compiled /api/auth/[...nextauth] in 1422ms (476 modules)
+ ⨯ ./lib/services/ai-content.ts
+Error: 
+  × the name `categoryName` is defined multiple times
+     ╭─[/home/runner/workspace/lib/services/ai-content.ts:288:1]
+ 288 │ 
+ 289 │ export async function generateCategoryArticle(category: string): Promise<ArticleData> {
+ 290 │   const topic = generateCategoryTopic(category);
+ 291 │   const categoryName = getCategoryDisplayName(category);
+     ·         ──────┬─────
+     ·               ╰── previous definition of `categoryName` here
+ 292 │   
+ 293 │   // Check if Gemini API key is available
+ 294 │   const hasGemini = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '';
+ 295 │ 
+ 296 │   // Fetch category and topic-specific image
+ 297 │   const featuredImage = await fetchTopicImage(`${categoryName} ${topic}`);
+ 298 │ 
+ 299 │   if (hasGemini) {
+ 300 │     try {
+ 301 │       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+ 302 │       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+ 303 │ 
+ 304 │       console.log(`Using Gemini to generate ${categoryName} content for:`, topic);
+ 305 │ 
+ 306 │       const prompt = `You are an expert writer specializing in ${categoryName}. Create a comprehensive, well-structured article about "${topic}" specifically for the ${categoryName} category.
+ 307 │ 
+ 308 │       The article should be at least 1200 words and include:
+ 309 │       - An engaging, SEO-friendly title that clearly relates to ${categoryName} and "${topic}"
+ 310 │       - A compelling excerpt (2-3 sentences) explaining the ${categoryName} relevance
+ 311 │       - Well-structured HTML content with proper headings (h1, h2, h3), paragraphs, and lists
+ 312 │       - Focus on current ${categoryName} trends and practical applications of "${topic}"
+ 313 │       - Include specific examples, case studies, or data points relevant to ${categoryName}
+ 314 │       - Address common questions about "${topic}" in the ${categoryName} context
+ 315 │       - Provide actionable insights for ${categoryName} professionals
+ 316 │       - Conclude with future outlook and recommendations
+ 317 │ 
+ 318 │       Write in a professional yet accessible tone. Make the content valuable for someone interested in both ${categoryName} and "${topic}".
+ 319 │       
+ 320 │       Format your response as a structured article with clear sections.`;
+ 321 │ 
+ 322 │       const result = await model.generateContent(prompt);
+ 323 │       const response = await result.response;
+ 324 │       const generatedContent = response.text();
+ 325 │ 
+ 326 │       // Parse the response and extract article data
+ 327 │       const lines = generatedContent.split('\n').filter(line => line.trim());
+ 328 │ 
+ 329 │       // Extract title (first non-empty line), clean up any HTML markup
+ 330 │       let title = lines[0] || `${topic} in ${categoryName}`;
+ 331 │ 
+ 332 │       // Clean up HTML markup, markdown code blocks, and other unwanted formatting
+ 333 │       title = title
+ 334 │         .replace(/```html|```|<!DOCTYPE html>/gi, '')
+ 335 │         .replace(/<[^>]*>/g, '')
+ 336 │         .replace(/^[#\-\*\s]+/, '')
+ 337 │         .trim();
+ 338 │ 
+ 339 │       if (!title) {
+ 340 │         title = `${topic} in ${categoryName}`;
+ 341 │       }
+ 342 │ 
+ 343 │       // Extract content (remaining lines joined), also clean up
+ 344 │       let content = lines.slice(1).join('\n\n');
+ 345 │       content = content
+ 346 │         .replace(/^```html|^```|^<!DOCTYPE html>/gi, '')
+ 347 │         .trim();
+ 348 │ 
+ 349 │       return {
+ 350 │         title,
+ 351 │         excerpt: `Explore the latest developments in ${topic} within the ${categoryName} industry. Discover trends, applications, and expert insights.`,
+ 352 │         content,
+ 353 │         featuredImage,
+ 354 │         tags: extractCategoryTags(category, topic),
+ 355 │         metaDescription: `Learn about ${topic} in ${categoryName}. Expert analysis of trends, applications, and future outlook.`,
+ 356 │       };
+ 357 │     } catch (error) {
+ 358 │       console.error('Gemini API error:', error);
+ 359 │       // Fall through to default content generation
+ 360 │     }
+ 361 │   }
+ 362 │ 
+ 363 │   // Enhanced mock content for category-specific articles
+ 364 │   const categoryName = getCategoryDisplayName(category);
+     ·         ──────┬─────
+     ·               ╰── `categoryName` redefined here
+ 365 │   const mockContent = {
+ 366 │     title: `${topic}: ${categoryName} Trends and Insights for 2025`,
+ 367 │     excerpt: `Discover how ${topic} is transforming the ${categoryName} landscape with cutting-edge innovations and practical applications.`,
+     ╰────
+
+Import trace for requested module:
+./lib/services/ai-content.ts
+./app/api/trending/route.ts
+ ○ Compiling /not-found ...
+ ⨯ ./lib/services/ai-content.ts
+Error: 
+  × the name `categoryName` is defined multiple times
+     ╭─[/home/runner/workspace/lib/services/ai-content.ts:288:1]
+ 288 │ 
+ 289 │ export async function generateCategoryArticle(category: string): Promise<ArticleData> {
+ 290 │   const topic = generateCategoryTopic(category);
+ 291 │   const categoryName = getCategoryDisplayName(category);
+     ·         ──────┬─────
+     ·               ╰── previous definition of `categoryName` here
+ 292 │   
+ 293 │   // Check if Gemini API key is available
+ 294 │   const hasGemini = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '';
+ 295 │ 
+ 296 │   // Fetch category and topic-specific image
+ 297 │   const featuredImage = await fetchTopicImage(`${categoryName} ${topic}`);
+ 298 │ 
+ 299 │   if (hasGemini) {
+ 300 │     try {
+ 301 │       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+ 302 │       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+ 303 │ 
+ 304 │       console.log(`Using Gemini to generate ${categoryName} content for:`, topic);
+ 305 │ 
+ 306 │       const prompt = `You are an expert writer specializing in ${categoryName}. Create a comprehensive, well-structured article about "${topic}" specifically for the ${categoryName} category.
+ 307 │ 
+ 308 │       The article should be at least 1200 words and include:
+ 309 │       - An engaging, SEO-friendly title that clearly relates to ${categoryName} and "${topic}"
+ 310 │       - A compelling excerpt (2-3 sentences) explaining the ${categoryName} relevance
+ 311 │       - Well-structured HTML content with proper headings (h1, h2, h3), paragraphs, and lists
+ 312 │       - Focus on current ${categoryName} trends and practical applications of "${topic}"
+ 313 │       - Include specific examples, case studies, or data points relevant to ${categoryName}
+ 314 │       - Address common questions about "${topic}" in the ${categoryName} context
+ 315 │       - Provide actionable insights for ${categoryName} professionals
+ 316 │       - Conclude with future outlook and recommendations
+ 317 │ 
+ 318 │       Write in a professional yet accessible tone. Make the content valuable for someone interested in both ${categoryName} and "${topic}".
+ 319 │       
+ 320 │       Format your response as a structured article with clear sections.`;
+ 321 │ 
+ 322 │       const result = await model.generateContent(prompt);
+ 323 │       const response = await result.response;
+ 324 │       const generatedContent = response.text();
+ 325 │ 
+ 326 │       // Parse the response and extract article data
+ 327 │       const lines = generatedContent.split('\n').filter(line => line.trim());
+ 328 │ 
+ 329 │       // Extract title (first non-empty line), clean up any HTML markup
+ 330 │       let title = lines[0] || `${topic} in ${categoryName}`;
+ 331 │ 
+ 332 │       // Clean up HTML markup, markdown code blocks, and other unwanted formatting
+ 333 │       title = title
+ 334 │         .replace(/```html|```|<!DOCTYPE html>/gi, '')
+ 335 │         .replace(/<[^>]*>/g, '')
+ 336 │         .replace(/^[#\-\*\s]+/, '')
+ 337 │         .trim();
+ 338 │ 
+ 339 │       if (!title) {
+ 340 │         title = `${topic} in ${categoryName}`;
+ 341 │       }
+ 342 │ 
+ 343 │       // Extract content (remaining lines joined), also clean up
+ 344 │       let content = lines.slice(1).join('\n\n');
+ 345 │       content = content
+ 346 │         .replace(/^```html|^```|^<!DOCTYPE html>/gi, '')
+ 347 │         .trim();
+ 348 │ 
+ 349 │       return {
+ 350 │         title,
+ 351 │         excerpt: `Explore the latest developments in ${topic} within the ${categoryName} industry. Discover trends, applications, and expert insights.`,
+ 352 │         content,
+ 353 │         featuredImage,
+ 354 │         tags: extractCategoryTags(category, topic),
+ 355 │         metaDescription: `Learn about ${topic} in ${categoryName}. Expert analysis of trends, applications, and future outlook.`,
+ 356 │       };
+ 357 │     } catch (error) {
+ 358 │       console.error('Gemini API error:', error);
+ 359 │       // Fall through to default content generation
+ 360 │     }
+ 361 │   }
+ 362 │ 
+ 363 │   // Enhanced mock content for category-specific articles
+ 364 │   const categoryName = getCategoryDisplayName(category);
+     ·         ──────┬─────
+     ·               ╰── `categoryName` redefined here
+ 365 │   const mockContent = {
+ 366 │     title: `${topic}: ${categoryName} Trends and Insights for 2025`,
+ 367 │     excerpt: `Discover how ${topic} is transforming the ${categoryName} landscape with cutting-edge innovations and practical applications.`,
+     ╰────
+
+Import trace for requested module:
+./lib/services/ai-content.ts
+./app/api/trending/route.ts
+ ⨯ ./lib/services/ai-content.ts
+Error: 
+  × the name `categoryName` is defined multiple times
+     ╭─[/home/runner/workspace/lib/services/ai-content.ts:288:1]
+ 288 │ 
+ 289 │ export async function generateCategoryArticle(category: string): Promise<ArticleData> {
+ 290 │   const topic = generateCategoryTopic(category);
+ 291 │   const categoryName = getCategoryDisplayName(category);
+     ·         ──────┬─────
+     ·               ╰── previous definition of `categoryName` here
+ 292 │   
+ 293 │   // Check if Gemini API key is available
+ 294 │   const hasGemini = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '';
+ 295 │ 
+ 296 │   // Fetch category and topic-specific image
+ 297 │   const featuredImage = await fetchTopicImage(`${categoryName} ${topic}`);
+ 298 │ 
+ 299 │   if (hasGemini) {
+ 300 │     try {
+ 301 │       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+ 302 │       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+ 303 │ 
+ 304 │       console.log(`Using Gemini to generate ${categoryName} content for:`, topic);
+ 305 │ 
+ 306 │       const prompt = `You are an expert writer specializing in ${categoryName}. Create a comprehensive, well-structured article about "${topic}" specifically for the ${categoryName} category.
+ 307 │ 
+ 308 │       The article should be at least 1200 words and include:
+ 309 │       - An engaging, SEO-friendly title that clearly relates to ${categoryName} and "${topic}"
+ 310 │       - A compelling excerpt (2-3 sentences) explaining the ${categoryName} relevance
+ 311 │       - Well-structured HTML content with proper headings (h1, h2, h3), paragraphs, and lists
+ 312 │       - Focus on current ${categoryName} trends and practical applications of "${topic}"
+ 313 │       - Include specific examples, case studies, or data points relevant to ${categoryName}
+ 314 │       - Address common questions about "${topic}" in the ${categoryName} context
+ 315 │       - Provide actionable insights for ${categoryName} professionals
+ 316 │       - Conclude with future outlook and recommendations
+ 317 │ 
+ 318 │       Write in a professional yet accessible tone. Make the content valuable for someone interested in both ${categoryName} and "${topic}".
+ 319 │       
+ 320 │       Format your response as a structured article with clear sections.`;
+ 321 │ 
+ 322 │       const result = await model.generateContent(prompt);
+ 323 │       const response = await result.response;
+ 324 │       const generatedContent = response.text();
+ 325 │ 
+ 326 │       // Parse the response and extract article data
+ 327 │       const lines = generatedContent.split('\n').filter(line => line.trim());
+ 328 │ 
+ 329 │       // Extract title (first non-empty line), clean up any HTML markup
+ 330 │       let title = lines[0] || `${topic} in ${categoryName}`;
+ 331 │ 
+ 332 │       // Clean up HTML markup, markdown code blocks, and other unwanted formatting
+ 333 │       title = title
+ 334 │         .replace(/```html|```|<!DOCTYPE html>/gi, '')
+ 335 │         .replace(/<[^>]*>/g, '')
+ 336 │         .replace(/^[#\-\*\s]+/, '')
+ 337 │         .trim();
+ 338 │ 
+ 339 │       if (!title) {
+ 340 │         title = `${topic} in ${categoryName}`;
+ 341 │       }
+ 342 │ 
+ 343 │       // Extract content (remaining lines joined), also clean up
+ 344 │       let content = lines.slice(1).join('\n\n');
+ 345 │       content = content
+ 346 │         .replace(/^```html|^```|^<!DOCTYPE html>/gi, '')
+ 347 │         .trim();
+ 348 │ 
+ 349 │       return {
+ 350 │         title,
+ 351 │         excerpt: `Explore the latest developments in ${topic} within the ${categoryName} industry. Discover trends, applications, and expert insights.`,
+ 352 │         content,
+ 353 │         featuredImage,
+ 354 │         tags: extractCategoryTags(category, topic),
+ 355 │         metaDescription: `Learn about ${topic} in ${categoryName}. Expert analysis of trends, applications, and future outlook.`,
+ 356 │       };
+ 357 │     } catch (error) {
+ 358 │       console.error('Gemini API error:', error);
+ 359 │       // Fall through to default content generation
+ 360 │     }
+ 361 │   }
+ 362 │ 
+ 363 │   // Enhanced mock content for category-specific articles
+ 364 │   const categoryName = getCategoryDisplayName(category);
+     ·         ──────┬─────
+     ·               ╰── `categoryName` redefined here
+ 365 │   const mockContent = {
+ 366 │     title: `${topic}: ${categoryName} Trends and Insights for 2025`,
+ 367 │     excerpt: `Discover how ${topic} is transforming the ${categoryName} landscape with cutting-edge innovations and practical applications.`,
+     ╰────
+
+Import trace for requested module:
+./lib/services/ai-content.ts
+./app/api/trending/route.ts
+ ⨯ ./lib/services/ai-content.ts
+Error: 
+  × the name `categoryName` is defined multiple times
+     ╭─[/home/runner/workspace/lib/services/ai-content.ts:288:1]
+ 288 │ 
+ 289 │ export async function generateCategoryArticle(category: string): Promise<ArticleData> {
+ 290 │   const topic = generateCategoryTopic(category);
+ 291 │   const categoryName = getCategoryDisplayName(category);
+     ·         ──────┬─────
+     ·               ╰── previous definition of `categoryName` here
+ 292 │   
+ 293 │   // Check if Gemini API key is available
+ 294 │   const hasGemini = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '';
+ 295 │ 
+ 296 │   // Fetch category and topic-specific image
+ 297 │   const featuredImage = await fetchTopicImage(`${categoryName} ${topic}`);
+ 298 │ 
+ 299 │   if (hasGemini) {
+ 300 │     try {
+ 301 │       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+ 302 │       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+ 303 │ 
+ 304 │       console.log(`Using Gemini to generate ${categoryName} content for:`, topic);
+ 305 │ 
+ 306 │       const prompt = `You are an expert writer specializing in ${categoryName}. Create a comprehensive, well-structured article about "${topic}" specifically for the ${categoryName} category.
+ 307 │ 
+ 308 │       The article should be at least 1200 words and include:
+ 309 │       - An engaging, SEO-friendly title that clearly relates to ${categoryName} and "${topic}"
+ 310 │       - A compelling excerpt (2-3 sentences) explaining the ${categoryName} relevance
+ 311 │       - Well-structured HTML content with proper headings (h1, h2, h3), paragraphs, and lists
+ 312 │       - Focus on current ${categoryName} trends and practical applications of "${topic}"
+ 313 │       - Include specific examples, case studies, or data points relevant to ${categoryName}
+ 314 │       - Address common questions about "${topic}" in the ${categoryName} context
+ 315 │       - Provide actionable insights for ${categoryName} professionals
+ 316 │       - Conclude with future outlook and recommendations
+ 317 │ 
+ 318 │       Write in a professional yet accessible tone. Make the content valuable for someone interested in both ${categoryName} and "${topic}".
+ 319 │       
+ 320 │       Format your response as a structured article with clear sections.`;
+ 321 │ 
+ 322 │       const result = await model.generateContent(prompt);
+ 323 │       const response = await result.response;
+ 324 │       const generatedContent = response.text();
+ 325 │ 
+ 326 │       // Parse the response and extract article data
+ 327 │       const lines = generatedContent.split('\n').filter(line => line.trim());
+ 328 │ 
+ 329 │       // Extract title (first non-empty line), clean up any HTML markup
+ 330 │       let title = lines[0] || `${topic} in ${categoryName}`;
+ 331 │ 
+ 332 │       // Clean up HTML markup, markdown code blocks, and other unwanted formatting
+ 333 │       title = title
+ 334 │         .replace(/```html|```|<!DOCTYPE html>/gi, '')
+ 335 │         .replace(/<[^>]*>/g, '')
+ 336 │         .replace(/^[#\-\*\s]+/, '')
+ 337 │         .trim();
+ 338 │ 
+ 339 │       if (!title) {
+ 340 │         title = `${topic} in ${categoryName}`;
+ 341 │       }
+ 342 │ 
+ 343 │       // Extract content (remaining lines joined), also clean up
+ 344 │       let content = lines.slice(1).join('\n\n');
+ 345 │       content = content
+ 346 │         .replace(/^```html|^```|^<!DOCTYPE html>/gi, '')
+ 347 │         .trim();
+ 348 │ 
+ 349 │       return {
+ 350 │         title,
+ 351 │         excerpt: `Explore the latest developments in ${topic} within the ${categoryName} industry. Discover trends, applications, and expert insights.`,
+ 352 │         content,
+ 353 │         featuredImage,
+ 354 │         tags: extractCategoryTags(category, topic),
+ 355 │         metaDescription: `Learn about ${topic} in ${categoryName}. Expert analysis of trends, applications, and future outlook.`,
+ 356 │       };
+ 357 │     } catch (error) {
+ 358 │       console.error('Gemini API error:', error);
+ 359 │       // Fall through to default content generation
+ 360 │     }
+ 361 │   }
+ 362 │ 
+ 363 │   // Enhanced mock content for category-specific articles
+ 364 │   const categoryName = getCategoryDisplayName(category);
+     ·         ──────┬─────
+     ·               ╰── `categoryName` redefined here
+ 365 │   const mockContent = {
+ 366 │     title: `${topic}: ${categoryName} Trends and Insights for 2025`,
+ 367 │     excerpt: `Discover how ${topic} is transforming the ${categoryName} landscape with cutting-edge innovations and practical applications.`,
+     ╰────
+
+Import trace for requested module:
+./lib/services/ai-content.ts
+./app/api/trending/route.ts
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/home/runner/workspace/.next/cache/webpack/client-development-fallback/0.pack.gz_' -> '/home/runner/workspace/.next/cache/webpack/client-development-fallback/0.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/home/runner/workspace/.next/cache/webpack/client-development-fallback/0.pack.gz_' -> '/home/runner/workspace/.next/cache/webpack/client-development-fallback/0.pack.gz'
+^C
