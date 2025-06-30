@@ -10,9 +10,50 @@ export interface ArticleData {
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+// Function to fetch topic-specific image from Unsplash
+async function fetchTopicImage(topic: string): Promise<string> {
+  const unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
+  
+  if (!unsplashAccessKey) {
+    console.log('Unsplash API key not found, using default image');
+    return 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=1200';
+  }
+
+  try {
+    const searchQuery = encodeURIComponent(topic);
+    const response = await fetch(
+      `https://api.unsplash.com/search/photos?query=${searchQuery}&per_page=1&orientation=landscape`,
+      {
+        headers: {
+          'Authorization': `Client-ID ${unsplashAccessKey}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Unsplash API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (data.results && data.results.length > 0) {
+      return data.results[0].urls.regular;
+    }
+    
+    // Fallback to default image if no results
+    return 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=1200';
+  } catch (error) {
+    console.error('Error fetching image from Unsplash:', error);
+    return 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=1200';
+  }
+}
+
 export async function generateArticleContent(topic: string): Promise<ArticleData> {
   // Check if Gemini API key is available
   const hasGemini = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '';
+
+  // Fetch topic-specific image
+  const featuredImage = await fetchTopicImage(topic);
 
   if (hasGemini) {
     try {
@@ -71,7 +112,7 @@ export async function generateArticleContent(topic: string): Promise<ArticleData
         title,
         excerpt: `Comprehensive insights into ${topic}. Discover the latest trends, practical applications, and expert analysis in this detailed guide.`,
         content,
-        featuredImage: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=1200',
+        featuredImage,
         tags: extractTags(topic),
         metaDescription: `Learn about ${topic} with expert insights and analysis. Discover trends, applications, and future outlook.`,
       };
@@ -115,7 +156,7 @@ export async function generateArticleContent(topic: string): Promise<ArticleData
       <h2>Conclusion</h2>
       <p>Understanding ${topic} is crucial for anyone looking to stay ahead in today's competitive landscape. By staying informed about the latest developments and trends, individuals and organizations can position themselves for success in the digital age.</p>
     `,
-    featuredImage: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    featuredImage,
     tags: extractTags(topic),
     metaDescription: `Comprehensive guide to ${topic} in 2025. Discover key trends, applications, and future outlook in this expert analysis.`,
   };

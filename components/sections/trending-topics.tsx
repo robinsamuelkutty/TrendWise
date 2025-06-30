@@ -101,28 +101,38 @@ export function TrendingTopics() {
                   <div className="space-y-2">
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-muted-foreground">Trend Score</span>
-                      <span className="font-medium">{topic.trendScore}/100</span>
+                      <span className="font-medium">{topic.trendScore || 0}/100</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
                       <div 
-                        className={`${topic.color} h-2 rounded-full transition-all duration-500`}
-                        style={{ width: `${topic.trendScore}%` }}
+                        className={`${topic.color || 'bg-blue-500'} h-2 rounded-full transition-all duration-500`}
+                        style={{ width: `${topic.trendScore || 0}%` }}
                       />
                     </div>
                   </div>
 
-                  {/* Stats */}
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center space-x-1">
-                      <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">
-                        {topic.articles} articles
-                      </span>
+                  {/* Twitter Stats */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center space-x-1">
+                        <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">
+                          {topic.tweetCount || topic.volume?.toLocaleString()} tweets
+                        </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {topic.articles || 0} articles
+                      </div>
                     </div>
-                    <Button size="sm" variant="ghost" className="text-xs h-8 px-3">
-                      <Zap className="mr-1 h-3 w-3" />
-                      Generate Article
-                    </Button>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">
+                        Volume: {(topic.volume || 0).toLocaleString()}
+                      </span>
+                      <Button size="sm" variant="ghost" className="text-xs h-6 px-2">
+                        <Zap className="mr-1 h-3 w-3" />
+                        Generate
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

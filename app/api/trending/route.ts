@@ -1,39 +1,82 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchTrendingTopics } from '@/lib/services/trending';
+import { twitterService } from '@/lib/services/twitter-trends';
 import { generateArticleContent } from '@/lib/services/ai-content';
 import { createArticle } from '@/lib/api/articles';
 
 export async function GET() {
   try {
-    const trendingTopics = await fetchTrendingTopics();
+    console.log('Fetching trending topics from Twitter...');
+    const trendingTopics = await twitterService.getTrendingTopics();
     return NextResponse.json({ topics: trendingTopics || [] });
   } catch (error) {
-    console.error('Error fetching trending topics:', error);
-    // Return mock data if API fails
+    console.error('Error fetching trending topics from Twitter:', error);
+    // Return mock data if Twitter API fails
     const mockTopics = [
       {
         id: '1',
         topic: 'Artificial Intelligence in 2025',
-        searchVolume: 150000,
-        growth: '+25%',
+        volume: 150000,
+        tweetCount: '250K',
         category: 'Technology',
-        relatedQueries: ['AI trends', 'machine learning 2025', 'AI applications']
+        change: '+25%',
+        trendScore: 95,
+        color: 'bg-green-500',
+        articles: 15
       },
       {
         id: '2',
         topic: 'Remote Work Technologies',
-        searchVolume: 120000,
-        growth: '+18%',
+        volume: 120000,
+        tweetCount: '180K',
         category: 'Business',
-        relatedQueries: ['remote work tools', 'hybrid work', 'collaboration software']
+        change: '+18%',
+        trendScore: 87,
+        color: 'bg-green-500',
+        articles: 12
       },
       {
         id: '3',
         topic: 'Sustainable Energy Solutions',
-        searchVolume: 95000,
-        growth: '+30%',
+        volume: 95000,
+        tweetCount: '165K',
         category: 'Environment',
-        relatedQueries: ['renewable energy', 'solar power', 'green technology']
+        change: '+30%',
+        trendScore: 92,
+        color: 'bg-green-500',
+        articles: 9
+      },
+      {
+        id: '4',
+        topic: 'Blockchain Technology',
+        volume: 88000,
+        tweetCount: '140K',
+        category: 'Technology',
+        change: '+22%',
+        trendScore: 84,
+        color: 'bg-green-500',
+        articles: 11
+      },
+      {
+        id: '5',
+        topic: 'Mental Health Awareness',
+        volume: 75000,
+        tweetCount: '128K',
+        category: 'Health',
+        change: '+15%',
+        trendScore: 78,
+        color: 'bg-blue-500',
+        articles: 8
+      },
+      {
+        id: '6',
+        topic: 'Space Technology',
+        volume: 65000,
+        tweetCount: '115K',
+        category: 'Science',
+        change: '+12%',
+        trendScore: 72,
+        color: 'bg-blue-500',
+        articles: 7
       }
     ];
     return NextResponse.json({ topics: mockTopics });

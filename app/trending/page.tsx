@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { TrendingTopics } from '@/components/sections/trending-topics';
+import { TrendingTweets } from '@/components/sections/trending-tweets';
 
 export const metadata: Metadata = {
   title: 'Trending Topics - TrendWise',
@@ -11,6 +12,7 @@ export default function TrendingPage() {
   return (
     <div className="min-h-screen">
       <TrendingTopics />
+      <TrendingTweets />
     </div>
   );
 }
