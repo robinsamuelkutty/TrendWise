@@ -6,8 +6,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, BarChart3, Zap, RefreshCw } from 'lucide-react';
 
+interface Topic {
+  id: string;
+  topic: string;
+  category?: string;
+  change?: string;
+  trendScore?: number;
+  color?: string;
+  tweetCount?: number;
+  volume?: number;
+  articles?: number;
+}
 export function TrendingTopics() {
-  const [topics, setTopics] = useState([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
 

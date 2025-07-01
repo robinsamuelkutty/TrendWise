@@ -1,4 +1,4 @@
-import { connectDB } from '@/lib/database/mongodb';
+import { MongoDBService } from '@/lib/database/mongodb';
 import mongoose from 'mongoose';
 
 export interface Comment {
@@ -31,7 +31,6 @@ const commentSchema = new mongoose.Schema({
   parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: null }
 });
 
-// Clear any cached model to ensure schema changes take effect
 if (mongoose.models.Comment) {
   delete mongoose.models.Comment;
 }
@@ -52,35 +51,34 @@ export function formatComment(comment: any): Comment {
   };
 }
 
+async function runConnection() {
+  const db = new MongoDBService();
+  await db.connect();
+}
+
+runConnection();
+
 export async function getCommentsByArticleId(articleId: string): Promise<Comment[]> {
   try {
-    await connectDB();
-
-    // Get all comments for the article
     const comments = await CommentModel.find({ 
       articleId: new mongoose.Types.ObjectId(articleId) 
     })
     .sort({ createdAt: -1 })
     .lean();
 
-    // Organize comments with their replies
     const commentMap = new Map<string, Comment>();
     const topLevelComments: Comment[] = [];
 
-    // First pass: create all comment objects
     comments.forEach(comment => {
       const formattedComment = formatComment(comment);
       commentMap.set(formattedComment.id, formattedComment);
-
       if (!formattedComment.parentId) {
         topLevelComments.push(formattedComment);
       }
     });
 
-    // Second pass: organize replies
     comments.forEach(comment => {
       const formattedComment = formatComment(comment);
-
       if (formattedComment.parentId) {
         const parentComment = commentMap.get(formattedComment.parentId);
         if (parentComment) {
@@ -103,8 +101,6 @@ export async function createComment(commentData: {
   parentId?: string;
 }): Promise<Comment> {
   try {
-    await connectDB();
-
     const comment = new CommentModel({
       articleId: new mongoose.Types.ObjectId(commentData.articleId),
       author: commentData.author,
@@ -124,8 +120,6 @@ export async function createComment(commentData: {
 
 export async function likeComment(commentId: string): Promise<Comment | null> {
   try {
-    await connectDB();
-
     const comment = await CommentModel.findByIdAndUpdate(
       commentId,
       { $inc: { likes: 1 } },

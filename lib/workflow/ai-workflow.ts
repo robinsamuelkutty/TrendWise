@@ -2,6 +2,7 @@ import { DataCollectionService, TrendingTopic } from '../services/data-collectio
 import { AIContentGenerator } from '../services/ai-content-generator';
 import { MongoDBService } from '../database/mongodb';
 
+
 export interface WorkflowConfig {
   maxTopicsPerRun: number;
   targetWordCount: number;
@@ -28,6 +29,8 @@ export class AIWorkflow {
   private dataCollector: DataCollectionService;
   private contentGenerator: AIContentGenerator;
   private database: MongoDBService;
+
+
 
   constructor() {
     this.dataCollector = new DataCollectionService();

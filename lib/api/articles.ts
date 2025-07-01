@@ -1,5 +1,6 @@
-import { connectDB } from '@/lib/database/mongodb';
-import { ArticleModel, formatArticle } from '@/lib/database/mongodb';
+// ✅ Final Refactored Code with top-level DB connect handled inside an async function
+
+import { MongoDBService, ArticleModel, formatArticle } from '@/lib/database/mongodb';
 
 export interface Article {
   id: string;
@@ -37,6 +38,18 @@ export interface GetArticlesParams {
   tags?: string[];
 }
 
+const db = new MongoDBService();
+
+async function runConnection() {
+  try {
+    await db.connect();
+  } catch (err) {
+    console.error('❌ Database connection failed:', err);
+  }
+}
+
+runConnection(); // 🔁 Top-level await workaround
+
 export async function getArticles(params: {
   page?: number;
   limit?: number;
@@ -51,8 +64,6 @@ export async function getArticles(params: {
   const { page = 1, limit = 10, search = '', category } = params;
 
   try {
-    await connectDB();
-
     const query: any = {};
 
     if (search) {
@@ -66,9 +77,7 @@ export async function getArticles(params: {
       ];
     }
 
-    if (category) {
-      query.category = category;
-    }
+    if (category) query.category = category;
 
     const skip = (page - 1) * limit;
     const articles = await ArticleModel.find(query)
@@ -79,27 +88,14 @@ export async function getArticles(params: {
 
     const totalCount = await ArticleModel.countDocuments(query);
 
-    // Return empty array if no articles found
-    if (articles.length === 0) {
-      return {
-        articles: [],
-        totalPages: 0,
-        currentPage: page,
-        totalCount: 0,
-      };
-    }
-
-    const totalPages = Math.ceil(totalCount / limit);
-
     return {
       articles: articles.map(formatArticle),
-      totalPages,
+      totalPages: Math.ceil(totalCount / limit),
       currentPage: page,
       totalCount,
     };
   } catch (error) {
     console.error('Error fetching articles:', error);
-    // Return empty array on database error
     return {
       articles: [],
       totalPages: 0,
@@ -109,11 +105,8 @@ export async function getArticles(params: {
   }
 }
 
-
-
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   try {
-    await connectDB();
     const article = await ArticleModel.findOne({ slug }).lean();
     return article ? formatArticle(article) : null;
   } catch (error) {
@@ -124,7 +117,6 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 
 export async function getRelatedArticles(articleId: string, tags: string[], limit = 3): Promise<Article[]> {
   try {
-    await connectDB();
     const articles = await ArticleModel.find({
       _id: { $ne: articleId },
       tags: { $in: tags },
@@ -142,10 +134,8 @@ export async function getRelatedArticles(articleId: string, tags: string[], limi
 
 export async function getArticlesByCategory(category: string, limit = 10): Promise<Article[]> {
   try {
-    await connectDB();
-    
     const articles = await ArticleModel.find({ 
-      category: category,
+      category,
       status: 'published'
     })
     .sort({ publishedAt: -1 })
@@ -161,8 +151,6 @@ export async function getArticlesByCategory(category: string, limit = 10): Promi
 
 export async function createArticle(articleData: any): Promise<Article> {
   try {
-    await connectDB();
-    
     const article = new ArticleModel({
       title: articleData.title,
       slug: articleData.title?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') || '',

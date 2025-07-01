@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getArticlesByCategory, getArticlesCountByCategory } from '@/lib/api/articles'; // if you want to get totalCount
+import { getArticlesByCategory } from '@/lib/api/articles'; // if you want to get totalCount
 import { ArticlesList } from '@/components/articles/articles-list';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, ArrowLeft } from 'lucide-react';
@@ -26,14 +26,14 @@ export default async function TrendingTopicPage({ params }: TrendingTopicPagePro
   const topicSlug = params.topic;
   const topicName = decodeURIComponent(topicSlug).replace(/-/g, ' ');
 
-  // Pagination setup (optional real logic)
-  const currentPage = 1;
   const perPage = 10;
 
-  // Fetch articles and total count
-  const articles = await getArticlesByCategory(topicSlug, currentPage, perPage);
-  const totalCount = articles.length; // ← replace with await getArticlesCountByCategory(topicSlug) if available
-  const totalPages = Math.ceil(totalCount / perPage);
+  // ✅ Just pass (category, limit)
+  const articles = await getArticlesByCategory(topicSlug, perPage);
+
+  const totalCount = articles.length;
+  const totalPages = 1; // No pagination support yet
+  const currentPage = 1;
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,17 +47,13 @@ export default async function TrendingTopicPage({ params }: TrendingTopicPagePro
                 Back to Trending
               </Button>
             </Link>
-            
+
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <TrendingUp className="h-6 w-6 text-primary" />
-                <Badge className="bg-red-500 hover:bg-red-600">
-                  Trending
-                </Badge>
+                <Badge className="bg-red-500 hover:bg-red-600">Trending</Badge>
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold capitalize">
-                {topicName}
-              </h1>
+              <h1 className="text-3xl md:text-4xl font-bold capitalize">{topicName}</h1>
               <p className="text-lg text-muted-foreground">
                 Latest articles and insights about {topicName}
               </p>

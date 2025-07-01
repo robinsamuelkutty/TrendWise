@@ -1,4 +1,5 @@
 "use client";
+import { toast } from 'react-hot-toast';
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +15,14 @@ import {
   MoreHorizontal,
   Play,
   Pause,
+  RefreshCw,
+  Zap,
+  Plus,
+  Database,
+  ArrowLeft,
+  TrendingUp as TrendingUpIcon,
+  User,
+  LogIn,
   Settings
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -24,7 +33,7 @@ export function AdminDashboard() {
 
   const handleGenerateContent = async () => {
     setIsGenerating(true);
-    toast.info('Generating content from trending topics...');
+    toast('Generating content from trending topics...');
 
     // Simulate content generation
     setTimeout(() => {

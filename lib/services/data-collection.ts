@@ -1,7 +1,7 @@
 import googleTrends from 'google-trends-api';
 import { TwitterApi } from 'twitter-api-v2';
 import { createApi } from 'unsplash-js';
-import { search } from 'youtube-search-api';
+import youtubeSearch  from 'youtube-search-api';
 import * as cheerio from 'cheerio';
 
 export interface TrendingTopic {
@@ -101,7 +101,7 @@ export class DataCollectionService {
       const trendingTopics: TrendingTopic[] = [];
 
       // Get trending topics for specified location
-      const locationTrends = await this.twitterClient.v1.trends(location);
+      const locationTrends = await this.twitterClient.v1.trendsByPlace(location);
       
       locationTrends[0].trends.forEach((trend: any) => {
         if (trend.name.startsWith('#')) return; // Skip hashtags for now
@@ -188,10 +188,7 @@ export class DataCollectionService {
 
   private async collectVideos(topic: string) {
     try {
-      const videos = await search(topic, {
-        limit: 5,
-        type: 'video',
-      });
+      const videos = await youtubeSearch.GetListByKeyword(topic, false, 5);
 
       return videos.items?.map((video: any) => ({
         id: video.id,
