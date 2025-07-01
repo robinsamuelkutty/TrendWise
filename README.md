@@ -2,7 +2,7 @@
 
 **TrendWise** is a full-stack, SEO-optimized blog platform that automatically fetches trending topics from Google/Twitter and generates rich articles using AI (OpenAI/Gemini). It supports Google authentication, user comments, and a beautifully designed blog frontend.
 
-![TrendWise Banner](https://trendwise-tau.vercel.app)
+
 
 ---
 
