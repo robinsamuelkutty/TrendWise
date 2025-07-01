@@ -32,7 +32,7 @@
 
 ---
 
-## 📦 Functional Modules
+##  Functional Modules
 
 ### 1. Backend Bot
 - Fetches trends from Twitter
