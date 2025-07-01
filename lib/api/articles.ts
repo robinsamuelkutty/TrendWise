@@ -140,6 +140,25 @@ export async function getRelatedArticles(articleId: string, tags: string[], limi
   }
 }
 
+export async function getArticlesByCategory(category: string, limit = 10): Promise<Article[]> {
+  try {
+    await connectDB();
+    
+    const articles = await ArticleModel.find({ 
+      category: category,
+      status: 'published'
+    })
+    .sort({ publishedAt: -1 })
+    .limit(limit)
+    .lean();
+
+    return articles.map(formatArticle);
+  } catch (error) {
+    console.error('Error fetching articles by category:', error);
+    return [];
+  }
+}
+
 export async function createArticle(articleData: any): Promise<Article> {
   try {
     await connectDB();

@@ -34,12 +34,13 @@ class TwitterService {
   private baseUrl = 'https://api.twitter.com/2';
 
   constructor() {
-    // Use the access token as bearer token for now
-    this.bearerToken = process.env.TWITTER_ACCESS_TOKEN || '';
+    // Twitter API v2 requires a Bearer Token, not access token
+    this.bearerToken = process.env.TWITTER_BEARER_TOKEN || '';
   }
 
   private async makeRequest(endpoint: string, params: Record<string, string> = {}) {
     if (!this.bearerToken) {
+      console.warn('Twitter Bearer Token not configured, using mock data');
       throw new Error('Twitter Bearer Token not configured');
     }
 

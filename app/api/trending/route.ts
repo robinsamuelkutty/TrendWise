@@ -10,6 +10,7 @@ export async function GET() {
     return NextResponse.json({ topics: trendingTopics || [] });
   } catch (error) {
     console.error('Error fetching trending topics from Twitter:', error);
+    console.log('Falling back to mock trending data...');
     // Return mock data if Twitter API fails
     const mockTopics = [
       {
