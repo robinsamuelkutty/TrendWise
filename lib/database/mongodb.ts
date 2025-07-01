@@ -4,10 +4,7 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/trendw
 
 export async function connectDB() {
   try {
-    if (mongoose.connections[0].readyState) {
-      return true;
-    }
-
+    if (mongoose.connections[0].readyState) return true;
     await mongoose.connect(MONGODB_URI);
     console.log('MongoDB connected successfully');
     return true;
@@ -17,65 +14,63 @@ export async function connectDB() {
   }
 }
 
-// Completely clear any cached models and connections
-Object.keys(mongoose.models).forEach(key => {
-  delete mongoose.models[key];
-});
-
+// Schema definition
 const articleSchema = new mongoose.Schema({
   title: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
   category: { type: String, default: 'general' },
   meta: {
-    description: { type: String },
-    keywords: { type: String },
-    author: { type: String },
-    robots: { type: String },
+    description: String,
+    keywords: String,
+    author: String,
+    robots: String,
     openGraph: {
-      title: { type: String },
-      description: { type: String },
-      image: { type: String },
-      type: { type: String },
-      url: { type: String }
+      title: String,
+      description: String,
+      image: String,
+      type: String,
+      url: String
     }
   },
   media: {
-    featuredImage: { type: String },
+    featuredImage: String,
     inlineImages: [{
-      url: { type: String },
-      alt: { type: String },
-      caption: { type: String },
-      position: { type: Number }
+      url: String,
+      alt: String,
+      caption: String,
+      position: Number
     }],
     embeddedTweets: [{
-      id: { type: String },
-      position: { type: Number }
+      id: String,
+      position: Number
     }],
     embeddedVideos: [{
-      url: { type: String },
-      title: { type: String },
-      position: { type: Number }
+      url: String,
+      title: String,
+      position: Number
     }]
   },
   content: { type: String, required: true },
-  excerpt: { type: String },
-  tags: [{ type: String }],
-  readTime: { type: Number },
+  excerpt: String,
+  tags: [String],
+  readTime: Number,
   status: { type: String, enum: ['draft', 'published', 'archived'], default: 'published' },
-  publishedAt: { type: Date },
+  publishedAt: Date,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   views: { type: Number, default: 0 },
   likes: { type: Number, default: 0 },
   source: {
-    topic: { type: String },
-    generatedBy: { type: String },
-    trendingSources: [{ type: String }]
+    topic: String,
+    generatedBy: String,
+    trendingSources: [String]
   }
 });
 
-export const ArticleModel = mongoose.model('Article', articleSchema);
+// Fix for hot reload in Next.js dev mode
+export const ArticleModel = mongoose.models.Article || mongoose.model('Article', articleSchema);
 
+// Format output
 export function formatArticle(doc: any) {
   return {
     id: doc._id.toString(),
@@ -98,3 +93,10 @@ export function formatArticle(doc: any) {
     likes: doc.likes || 0
   };
 }
+
+// ✅ Add this to fix the Vercel export error
+export const MongoDBService = {
+  connectDB,
+  ArticleModel,
+  formatArticle
+};

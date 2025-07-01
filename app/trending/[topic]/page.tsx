@@ -1,7 +1,5 @@
-
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { getArticlesByCategory } from '@/lib/api/articles';
+import { getArticlesByCategory, getArticlesCountByCategory } from '@/lib/api/articles'; // if you want to get totalCount
 import { ArticlesList } from '@/components/articles/articles-list';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, ArrowLeft } from 'lucide-react';
@@ -27,10 +25,15 @@ export async function generateMetadata({ params }: TrendingTopicPageProps): Prom
 export default async function TrendingTopicPage({ params }: TrendingTopicPageProps) {
   const topicSlug = params.topic;
   const topicName = decodeURIComponent(topicSlug).replace(/-/g, ' ');
-  
-  // For now, we'll treat trending topics like categories and fetch related articles
-  // In a real app, you might have a separate trending articles API
-  const articles = await getArticlesByCategory(topicSlug);
+
+  // Pagination setup (optional real logic)
+  const currentPage = 1;
+  const perPage = 10;
+
+  // Fetch articles and total count
+  const articles = await getArticlesByCategory(topicSlug, currentPage, perPage);
+  const totalCount = articles.length; // ← replace with await getArticlesCountByCategory(topicSlug) if available
+  const totalPages = Math.ceil(totalCount / perPage);
 
   return (
     <div className="min-h-screen bg-background">
@@ -63,7 +66,12 @@ export default async function TrendingTopicPage({ params }: TrendingTopicPagePro
         </div>
 
         {/* Articles */}
-        <ArticlesList articles={articles} category={topicSlug} />
+        <ArticlesList
+          articles={articles}
+          category={topicSlug}
+          totalPages={totalPages}
+          currentPage={currentPage}
+        />
       </div>
     </div>
   );
