@@ -63,6 +63,9 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
+            <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
+              Home
+            </Link>
             <Link href="/articles" className="text-sm font-medium transition-colors hover:text-primary">
               Articles
             </Link>
@@ -72,24 +75,9 @@ export function Header() {
             <Link href="/categories" className="text-sm font-medium transition-colors hover:text-primary">
               Categories
             </Link>
-            <Link href="/trending" className="text-sm font-medium transition-colors hover:text-primary">
-              Trending
-            </Link>
+            
           </nav>
 
-          {/* Search Bar */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
-            <form onSubmit={handleSearch} className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search articles..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4"
-              />
-            </form>
-          </div>
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">

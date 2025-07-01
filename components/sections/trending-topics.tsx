@@ -145,12 +145,7 @@ export function TrendingTopics() {
           </div>
         )}
 
-        {/* View All Button */}
-        <div className="text-center mt-12">
-          <Button size="lg" variant="outline">
-            View All Trending Topics
-          </Button>
-        </div>
+        
       </div>
     </section>
   );

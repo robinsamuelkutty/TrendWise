@@ -1,5 +1,7 @@
+'use client';
+
 import Link from 'next/link';
-import { TrendingUp, Mail, Twitter, Github, Linkedin } from 'lucide-react';
+import { TrendingUp, Mail, CircleUser , Github, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -7,103 +9,78 @@ export function Footer() {
   return (
     <footer className="border-t bg-background">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold">TrendWise</span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Discover trending topics and AI-generated insights on technology, business, and innovation.
-            </p>
-            <div className="flex space-x-2">
-              <Button variant="ghost" size="sm">
-                <Twitter className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Github className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Linkedin className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          
+          {/* Brand Section */}
+         <div className="space-y-4">
+  <div className="flex items-center space-x-2">
+    <TrendingUp className="h-6 w-6 text-primary" />
+    <span className="text-xl font-bold">TrendWise</span>
+  </div>
 
-          {/* Navigation */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold">Navigation</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/articles" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Articles
-                </Link>
-              </li>
-              <li>
-                <Link href="/trending" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Trending
-                </Link>
-              </li>
-              <li>
-                <Link href="/categories" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Categories
-                </Link>
-              </li>
-            </ul>
-          </div>
+  <p className="text-sm text-muted-foreground">
+    Discover trending topics and AI-generated insights on technology, business, and innovation.
+  </p>
 
-          {/* Categories */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold">Categories</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/category/technology" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Technology
-                </Link>
-              </li>
-              <li>
-                <Link href="/category/business" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Business
-                </Link>
-              </li>
-              <li>
-                <Link href="/category/ai" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Artificial Intelligence
-                </Link>
-              </li>
-              <li>
-                <Link href="/category/startup" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Startup
-                </Link>
-              </li>
-            </ul>
-          </div>
+  <div className="flex space-x-2">
+    <a
+      href="https://robinsam.vercel.app"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Twitter"
+    >
+      <Button variant="ghost" size="sm">
+        <CircleUser  className="h-4 w-4" />
+      </Button>
+    </a>
 
-          {/* Newsletter */}
+    <a
+      href="https://github.com/robinsamuelkutty"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="GitHub"
+    >
+      <Button variant="ghost" size="sm">
+        <Github className="h-4 w-4" />
+      </Button>
+    </a>
+
+    <a
+      href="https://linkedin.com/in/robinsamuelkutty"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="LinkedIn"
+    >
+      <Button variant="ghost" size="sm">
+        <Linkedin className="h-4 w-4" />
+      </Button>
+    </a>
+  </div>
+</div>
+
+
+          {/* Newsletter Section */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold">Stay Updated</h3>
             <p className="text-sm text-muted-foreground">
               Get the latest trending articles delivered to your inbox.
             </p>
-            <div className="flex space-x-2">
+            <form className="flex space-x-2" onSubmit={(e) => e.preventDefault()}>
               <Input 
                 type="email" 
                 placeholder="Enter your email"
                 className="flex-1"
+                required
               />
-              <Button size="sm">
+              <Button type="submit" size="sm" aria-label="Subscribe">
                 <Mail className="h-4 w-4" />
               </Button>
-            </div>
+            </form>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t">
+        {/* Footer Bottom */}
+        <div className="mt-12 border-t pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-sm text-muted-foreground">
               © 2025 TrendWise. All rights reserved.

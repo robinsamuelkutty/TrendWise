@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Sparkles, Brain } from 'lucide-react';
+import Link from 'next/link';
 
 export function Hero() {
   return (
@@ -30,14 +31,13 @@ export function Hero() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+           <Link href="/articles" className="w-full sm:w-auto">
             <Button size="lg" className="px-8 py-3 text-lg">
               <TrendingUp className="mr-2 h-5 w-5" />
-              Explore Trending Topics
+              Explore Articles
             </Button>
-            <Button variant="outline" size="lg" className="px-8 py-3 text-lg">
-              <Brain className="mr-2 h-5 w-5" />
-              How It Works
-            </Button>
+          </Link>
+          
           </div>
 
           {/* Stats */}
