@@ -126,6 +126,7 @@ async function CategoryContent({ category, currentPage }: { category: string; cu
       totalPages={totalPages}
       currentPage={page}
       basePath={`/category/${category}`}
+      category={category}
     />
   );
 }
@@ -170,9 +171,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           {category.description}
         </p>
 
-        <div className="flex items-center justify-center space-x-4">
-          <GenerateCategoryArticleButton category={params.category} />
-        </div>
+        
       </div>
 
       {/* Articles List with Loading State */}

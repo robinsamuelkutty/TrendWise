@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, Clock, Eye, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarDays, Clock, Eye, TrendingUp, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Article } from '@/lib/api/articles';
 
@@ -13,9 +13,39 @@ interface ArticlesListProps {
   currentPage: number;
   searchQuery?: string;
   basePath?: string;
+  category?: string;
 }
 
-export function ArticlesList({ articles, totalPages, currentPage, searchQuery, basePath = '/articles' }: ArticlesListProps) {
+function ViewMoreButton({ category }: { category: string }) {
+  const handleViewMore = async () => {
+    try {
+      const response = await fetch('/api/articles/category', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ category }),
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error generating more articles:', error);
+    }
+  };
+
+  return (
+    <div className="flex justify-center mt-8">
+      <Button onClick={handleViewMore} variant="outline" size="lg" className="px-8">
+        <Plus className="h-4 w-4 mr-2" />
+        View More
+      </Button>
+    </div>
+  );
+}
+
+export function ArticlesList({ articles, totalPages, currentPage, searchQuery, basePath = '/articles', category }: ArticlesListProps) {
   if (articles.length === 0) {
     return (
       <div className="text-center py-16">
@@ -122,6 +152,11 @@ export function ArticlesList({ articles, totalPages, currentPage, searchQuery, b
           </Link>
         ))}
       </div>
+
+      {/* View More Button for Category Pages */}
+      {category && (
+        <ViewMoreButton category={category} />
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
