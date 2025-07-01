@@ -5,9 +5,10 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { CalendarDays, Clock, Eye, TrendingUp, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { CalendarDays, Clock, Eye, TrendingUp, ChevronLeft, ChevronRight, Plus, RefreshCw } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Article } from '@/lib/api/articles';
+import { useState } from 'react';
 
 interface ArticlesListProps {
   articles: Article[];
@@ -19,7 +20,10 @@ interface ArticlesListProps {
 }
 
 function ViewMoreButton({ category }: { category: string }) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleViewMore = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch('/api/articles/category', {
         method: 'POST',
@@ -34,14 +38,31 @@ function ViewMoreButton({ category }: { category: string }) {
       }
     } catch (error) {
       console.error('Error generating more articles:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex justify-center mt-8">
-      <Button onClick={handleViewMore} variant="outline" size="lg" className="px-8">
-        <Plus className="h-4 w-4 mr-2" />
-        View More
+      <Button 
+        onClick={handleViewMore} 
+        variant="outline" 
+        size="lg" 
+        className="px-8"
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <>
+            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+            Generating Articles...
+          </>
+        ) : (
+          <>
+            <Plus className="h-4 w-4 mr-2" />
+            View More
+          </>
+        )}
       </Button>
     </div>
   );
