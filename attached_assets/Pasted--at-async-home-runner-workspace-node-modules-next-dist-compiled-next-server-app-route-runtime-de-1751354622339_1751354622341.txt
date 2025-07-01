@@ -1,0 +1,48 @@
+    at async /home/runner/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:63251
+Twitter API error: 401 - Unauthorized
+Error searching tweets: Error: Twitter API request failed: 401
+    at TwitterService.makeRequest (webpack-internal:///(rsc)/./lib/services/twitter-trends.ts:28:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async TwitterService.searchTweets (webpack-internal:///(rsc)/./lib/services/twitter-trends.ts:76:26)
+    at async TwitterService.getTrendingTopics (webpack-internal:///(rsc)/./lib/services/twitter-trends.ts:52:40)
+    at async GET (webpack-internal:///(rsc)/./app/api/trending/route.ts:17:32)
+    at async /home/runner/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:63251
+Twitter API error: 401 - Unauthorized
+Error searching tweets: Error: Twitter API request failed: 401
+    at TwitterService.makeRequest (webpack-internal:///(rsc)/./lib/services/twitter-trends.ts:28:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async TwitterService.searchTweets (webpack-internal:///(rsc)/./lib/services/twitter-trends.ts:76:26)
+    at async TwitterService.getTrendingTopics (webpack-internal:///(rsc)/./lib/services/twitter-trends.ts:52:40)
+    at async GET (webpack-internal:///(rsc)/./app/api/trending/route.ts:17:32)
+    at async /home/runner/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:63251
+ ○ Compiling /trending/[topic] ...
+ ⚠ ./app/trending/[topic]/page.tsx
+Attempted import error: 'getArticlesByCategory' is not exported from '@/lib/api/articles' (imported as 'getArticlesByCategory').
+
+Import trace for requested module:
+./app/trending/[topic]/page.tsx
+
+ ⚠ metadata.metadataBase is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ ⨯ app/trending/[topic]/page.tsx (33:47) @ topicSlug
+ ⨯ TypeError: (0 , _lib_api_articles__WEBPACK_IMPORTED_MODULE_1__.getArticlesByCategory) is not a function
+    at TrendingTopicPage (./app/trending/[topic]/page.tsx:42:100)
+    at stringify (<anonymous>)
+  31 |   // For now, we'll treat trending topics like categories and fetch related articles
+  32 |   // In a real app, you might have a separate trending articles API
+> 33 |   const articles = await getArticlesByCategory(topicSlug);
+     |                                               ^
+  34 |
+  35 |   return (
+  36 |     <div className="min-h-screen bg-background">
+ ⨯ app/trending/[topic]/page.tsx (33:47) @ topicSlug
+ ⨯ TypeError: (0 , _lib_api_articles__WEBPACK_IMPORTED_MODULE_1__.getArticlesByCategory) is not a function
+    at TrendingTopicPage (./app/trending/[topic]/page.tsx:42:100)
+    at stringify (<anonymous>)
+digest: "382425746"
+  31 |   // For now, we'll treat trending topics like categories and fetch related articles
+  32 |   // In a real app, you might have a separate trending articles API
+> 33 |   const articles = await getArticlesByCategory(topicSlug);
+     |                                               ^
+  34 |
+  35 |   return (
+  36 |     <div className="min-h-screen bg-background">
