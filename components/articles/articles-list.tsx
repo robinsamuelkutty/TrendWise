@@ -12,9 +12,10 @@ interface ArticlesListProps {
   totalPages: number;
   currentPage: number;
   searchQuery?: string;
+  basePath?: string;
 }
 
-export function ArticlesList({ articles, totalPages, currentPage, searchQuery }: ArticlesListProps) {
+export function ArticlesList({ articles, totalPages, currentPage, searchQuery, basePath = '/articles' }: ArticlesListProps) {
   if (articles.length === 0) {
     return (
       <div className="text-center py-16">
@@ -132,7 +133,7 @@ export function ArticlesList({ articles, totalPages, currentPage, searchQuery }:
             asChild={currentPage > 1}
           >
             {currentPage > 1 ? (
-              <Link href={`/articles?page=${currentPage - 1}${searchQuery ? `&search=${searchQuery}` : ''}`}>
+              <Link href={`${basePath}?page=${currentPage - 1}${searchQuery ? `&search=${searchQuery}` : ''}`}>
                 <ChevronLeft className="h-4 w-4 mr-2" />
                 Previous
               </Link>
@@ -154,7 +155,7 @@ export function ArticlesList({ articles, totalPages, currentPage, searchQuery }:
                   size="sm"
                   asChild
                 >
-                  <Link href={`/articles?page=${pageNum}${searchQuery ? `&search=${searchQuery}` : ''}`}>
+                  <Link href={`${basePath}?page=${pageNum}${searchQuery ? `&search=${searchQuery}` : ''}`}>
                     {pageNum}
                   </Link>
                 </Button>
@@ -169,7 +170,7 @@ export function ArticlesList({ articles, totalPages, currentPage, searchQuery }:
             asChild={currentPage < totalPages}
           >
             {currentPage < totalPages ? (
-              <Link href={`/articles?page=${currentPage + 1}${searchQuery ? `&search=${searchQuery}` : ''}`}>
+              <Link href={`${basePath}?page=${currentPage + 1}${searchQuery ? `&search=${searchQuery}` : ''}`}>
                 Next
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Link>

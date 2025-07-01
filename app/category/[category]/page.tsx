@@ -1,12 +1,9 @@
-
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getArticles } from '@/lib/api/articles';
 import { ArticlesList } from '@/components/articles/articles-list';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { RefreshCw, Plus } from 'lucide-react';
-import { generateCategoryArticle } from '@/lib/services/ai-content';
+import { GenerateCategoryArticleButton } from '@/components/category/generate-article-button';
 
 const categories = {
   technology: {
@@ -62,7 +59,7 @@ interface CategoryPageProps {
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const category = categories[params.category as keyof typeof categories];
-  
+
   if (!category) {
     return {
       title: 'Category Not Found',
@@ -78,7 +75,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const category = categories[params.category as keyof typeof categories];
-  
+
   if (!category) {
     notFound();
   }
@@ -101,16 +98,16 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             </h1>
           </div>
         </div>
-        
+
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
           {category.description}
         </p>
-        
+
         <div className="flex items-center justify-center space-x-4">
           <Badge variant="secondary">
             {totalCount} articles available
           </Badge>
-          
+
           <GenerateCategoryArticleButton category={params.category} />
         </div>
       </div>
@@ -123,32 +120,5 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         basePath={`/category/${params.category}`}
       />
     </div>
-  );
-}
-
-function GenerateCategoryArticleButton({ category }: { category: string }) {
-  const handleGenerate = async () => {
-    try {
-      const response = await fetch('/api/articles/category', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ category }),
-      });
-
-      if (response.ok) {
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error('Error generating article:', error);
-    }
-  };
-
-  return (
-    <Button onClick={handleGenerate} variant="outline">
-      <Plus className="h-4 w-4 mr-2" />
-      Generate New Article
-    </Button>
   );
 }
