@@ -41,6 +41,34 @@ export function TrendingTopics() {
     }
   };
 
+  const handleGenerateArticle = async (topic: string) => {
+    try {
+      const response = await fetch('/api/trending', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic }),
+      });
+
+      if (response.ok) {
+        const article = await response.json();
+        // Redirect to the generated article
+        window.location.href = `/article/${article.slug}`;
+      } else {
+        console.error('Failed to generate article');
+      }
+    } catch (error) {
+      console.error('Error generating article:', error);
+    }
+  };
+
+  const handleTopicClick = (topic: string) => {
+    // Convert topic to URL-friendly format and navigate to trending topic page
+    const topicSlug = topic.toLowerCase().replace(/\s+/g, '-');
+    window.location.href = `/trending/${encodeURIComponent(topicSlug)}`;
+  };
+
   return (
     <section className="bg-muted/30">
       <div className="container mx-auto px-4 py-16">
@@ -80,7 +108,11 @@ export function TrendingTopics() {
         ) : topics.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {topics.map((topic, index) => (
-              <Card key={topic.id} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <Card 
+                key={topic.id} 
+                className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                onClick={() => handleTopicClick(topic.topic)}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
@@ -128,7 +160,16 @@ export function TrendingTopics() {
                       <span className="text-muted-foreground">
                         Volume: {(topic.volume || 0).toLocaleString()}
                       </span>
-                      <Button size="sm" variant="ghost" className="text-xs h-6 px-2">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-xs h-6 px-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleGenerateArticle(topic.topic);
+                        }}
+                        disabled={isRefreshing}
+                      >
                         <Zap className="mr-1 h-3 w-3" />
                         Generate
                       </Button>

@@ -34,7 +34,8 @@ class TwitterService {
   private baseUrl = 'https://api.twitter.com/2';
 
   constructor() {
-    this.bearerToken = process.env.TWITTER_BEARER_TOKEN || '';
+    // Use the access token as bearer token for now
+    this.bearerToken = process.env.TWITTER_ACCESS_TOKEN || '';
   }
 
   private async makeRequest(endpoint: string, params: Record<string, string> = {}) {
